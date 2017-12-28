@@ -1,9 +1,0 @@
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.csprojResolveAssemblyReference.cache
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.Form1.resources
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.Properties.Resources.resources
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.csproj.GenerateResource.Cache
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe.config
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.pdb
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
-C:\Users\Felipe\Documents\Visual Studio 2017\Projects\WindowsFormsApp5\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb
