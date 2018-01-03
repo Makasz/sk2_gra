@@ -208,9 +208,19 @@ int main (int argc, char *argv[])
 
           len = rc;
           printf("  %d bytes received: %s\n", len, buffer);
-          it = socket_to_id.find(fds[i].fd);
+          auto fds_cpy = fds[i].fd;
+
+          if(!strcmp(buffer, "playerlist")){ //Return list of online players
+              for_each(socket_to_id.begin(),socket_to_id.end(), [fds_cpy](pair<int, player*> i){
+                  printf("%s\n", to_string(i.first).c_str());
+                  send(fds_cpy, to_string(i.first).c_str(), sizeof(to_string(i.first)), 0);
+              });
+              continue;
+          }
+
+          it = socket_to_id.find(fds[i].fd); //Create iterator on wanted player
           copy(begin(buffer), end(buffer), begin(it->second->vote));
-          if(it->second->team == 0){
+          if(it->second->team == 0){ //Sen players vote to entire team (self included)
               for(int j = 0; j < game_01.red_cnt; j++){
                   rc = send(game_01.red_player[j], it->second->vote, sizeof(it->second->vote), 0);
               }
