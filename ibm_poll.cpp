@@ -10,6 +10,8 @@
 #include <string.h>
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <iterator>
 
 using namespace std;
 
@@ -37,6 +39,23 @@ struct game{
 
 struct game game_01;
 
+void print_player(player* a){
+    printf("    Team: %d\n    Socket: %d\n    Vote: %s\n---------\n", a->team, a->socket, a->vote);
+}
+
+void print_game(game g){
+    printf("Table: %s\nRed count: %d\nBlue count: %d\n", g.table, g.red_cnt, g.blue_cnt);
+    printf("Red players:\n");
+    for(int i = 0; i<g.red_cnt; i++){
+        print_player(g.red_player[i]);
+    }
+    printf("Blue players:\n");
+    for(int i = 0; i<g.blue_cnt; i++){
+        print_player(g.blue_player[i]);
+    }
+}
+
+map <int, int> socket_to_id;
 
 int main (int argc, char *argv[])
 {
@@ -44,7 +63,7 @@ int main (int argc, char *argv[])
       int    listen_socekt = -1, new_sd = -1;
       int    end_server = FALSE, compress_array = FALSE;
       int    close_conn;
-      char   buffer[10];
+      char   buffer[10] = "999999999";
       struct sockaddr_in   addr;
       int    timeout;
       struct pollfd fds[200];
@@ -148,9 +167,11 @@ int main (int argc, char *argv[])
 
           if(game_01.red_cnt <= game_01.blue_cnt){ //Add player to smaller team
               game_01.red_player[game_01.red_cnt] = new player(new_sd); //Update red player list
+              game_01.red_player[game_01.red_cnt]->team = 0;
               game_01.red_cnt++; //Update red player count
           } else {
               game_01.blue_player[game_01.blue_cnt] = new player(new_sd);
+              game_01.blue_player[game_01.blue_cnt]->team = 1;
               game_01.blue_cnt++;
           }
           printf("Red team: %d   Blue team: %d\n", game_01.red_cnt, game_01.blue_cnt);
@@ -184,22 +205,18 @@ int main (int argc, char *argv[])
           len = rc;
           printf("  %d bytes received: %s\n", len, buffer);
 
-          for(int j = 0; j <= game_01.red_cnt; j++){
-              if(game_01.red_player[j]->socket == fds[i].fd){
-                  //game_01.red_player[j]->vote = buffer;
+
+          for(int j = 0; j < game_01.red_cnt; j++){
                   copy(begin(buffer), end(buffer), begin(game_01.red_player[j]->vote));
-                  rc = send(game_01.red_player[j]->socket, game_01.red_player[j]->vote, sizeof(char)*9, 0);
-              }
+                  rc = send(game_01.red_player[j]->socket, game_01.red_player[j]->vote, sizeof(game_01.blue_player[j]->vote), 0);
           }
-          for(int j = 0; j <= game_01.blue_cnt; j++){
-              if(game_01.blue_player[j]->socket == fds[i].fd){
+          for(int j = 0; j < game_01.blue_cnt; j++){
                   copy(begin(buffer), end(buffer), begin(game_01.blue_player[j]->vote));
-                  rc = send(game_01.blue_player[j]->socket, game_01.blue_player[j]->vote, sizeof(char)*9, 0);
-              }
+                  rc = send(game_01.blue_player[j]->socket, game_01.blue_player[j]->vote, sizeof(game_01.blue_player[j]->vote), 0);
           }
-          printf("Echoed\n");
-          //rc = send(game_01.blue_player[j]->socket, game_01.blue_player[j]->vote, len, 0);
-          //rc = send(fds[i].fd, buffer, len, 0); //Echo message to sender
+
+          print_game(game_01);
+
           if (rc < 0)
           {
             perror("  send() failed");

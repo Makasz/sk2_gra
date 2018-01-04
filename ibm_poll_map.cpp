@@ -35,6 +35,8 @@ struct game{
     int blue_cnt = 0;
     int red_player[10];
     int blue_player[10];
+    int red_players_voted = 0;
+    int blue_player_voted = 0;
 };
 
 struct game game_01;
@@ -60,7 +62,7 @@ void print_game(game g){
 
 
 int main (int argc, char *argv[])
-{
+{lue_player[10];
       int    len, rc, on = 1;
       int    listen_socekt = -1, new_sd = -1;
       int    end_server = FALSE, compress_array = FALSE;
@@ -219,8 +221,8 @@ int main (int argc, char *argv[])
           }
 
           it = socket_to_id.find(fds[i].fd); //Create iterator on wanted player
-          copy(begin(buffer), end(buffer), begin(it->second->vote));
-          if(it->second->team == 0){ //Sen players vote to entire team (self included)
+          copy(begin(buffer), end(buffer), begin(it->second->vote)); //Remember clients vote
+          if(it->second->team == 0){ //Send players vote to entire team (self included)
               for(int j = 0; j < game_01.red_cnt; j++){
                   rc = send(game_01.red_player[j], it->second->vote, sizeof(it->second->vote), 0);
               }
