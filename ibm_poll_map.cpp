@@ -12,6 +12,7 @@
 #include <iostream>
 #include <map>
 #include <iterator>
+#include <vector>
 
 using namespace std;
 
@@ -35,8 +36,8 @@ struct game{
     int blue_cnt = 0;
     int red_player[10];
     int blue_player[10];
-    int red_players_voted = 0;
-    int blue_player_voted = 0;
+    int r_pl_voted = 0;
+    int b_pl_voted = 0;
 };
 
 struct game game_01;
@@ -60,9 +61,27 @@ void print_game(game g){
     }
 }
 
+void update_table(int team){
+    vector<char *> votes;
+    if(team = 0){
+        for(int i = 0; i < game_01.red_cnt; i++){
+            it = socket_to_id.find(game_01.red_player[i]);
+            votes.push_back(it->second->vote);
+        }
+    }
+    if(team = 1){
+        for(int i = 0; i < game_01.blue_cnt; i++){
+            it = socket_to_id.find(game_01.blue_player[i]);
+            votes.push_back(it->second->vote);
+        }
+    }
+    for(auto i : votes){
+        cout << i << endl;
+    }
+}
 
 int main (int argc, char *argv[])
-{lue_player[10];
+{
       int    len, rc, on = 1;
       int    listen_socekt = -1, new_sd = -1;
       int    end_server = FALSE, compress_array = FALSE;
@@ -221,15 +240,29 @@ int main (int argc, char *argv[])
           }
 
           it = socket_to_id.find(fds[i].fd); //Create iterator on wanted player
-          copy(begin(buffer), end(buffer), begin(it->second->vote)); //Remember clients vote
+          copy(begin(buffer), end(buffer), begin(it->second->vote));
           if(it->second->team == 0){ //Send players vote to entire team (self included)
               for(int j = 0; j < game_01.red_cnt; j++){
                   rc = send(game_01.red_player[j], it->second->vote, sizeof(it->second->vote), 0);
+                  game_01.r_pl_voted++;
+                  if(game_01.r_pl_voted == game_01.red_cnt){ //All red palyer voted
+                      rc = send(game_01.red_player[j], "redvoted ", sizeof("redvoted "), 0);
+                      //Call finished voting handler TODO
+                  }
               }
+              if(game_01.r_pl_voted == game_01.red_cnt) game_01.r_pl_voted = 0;
+
           } else {
               for(int j = 0; j < game_01.blue_cnt; j++){
                   rc = send(game_01.blue_player[j], it->second->vote, sizeof(it->second->vote), 0);
+                  game_01.b_pl_voted++;
+                  if(game_01.b_pl_voted == game_01.blue_cnt){ //All blue palyer voted
+                      rc = send(game_01.blue_player[j], "bluevoted", sizeof("bluevoted"), 0);
+                      //Call finished voting handler TODO
+                      game_01.b_pl_voted = 0;
+                  }
               }
+              if(game_01.b_pl_voted == game_01.blue_cnt) game_01.b_pl_voted = 0;
           }
 
           print_game(game_01);
