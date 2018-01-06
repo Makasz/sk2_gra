@@ -28,12 +28,14 @@ namespace WindowsFormsApp5
         string addr = "127.0.0.1";
         int port = 12345;
         //  'n' is none, 'X' is team1, 'O' is team2
-        char[] game_status = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
-        
+        char[] board_local  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
+        char[] board_remote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
+
         bool turn = true;
         bool someone_won = false;
         IPAddress ipAddr;
         Socket soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        byte[] recBuffer = new byte[20];
 
         delegate void StringArgReturningVoidDelegate(string text);
 
@@ -70,8 +72,7 @@ namespace WindowsFormsApp5
 
         private void receiveData(Socket soc)
         {
-            byte[] recBuffer = new byte[10];
-            int delay = 1000 * 60;
+            int delay = 1000 * 20;
             while (true)
             {
                 try
@@ -93,19 +94,19 @@ namespace WindowsFormsApp5
             }
         }
 
-        private void sendData(Socket soc)
+        private int sendData(Socket soc, string input)
         {
-            string s = textBox1.Text;
+            int s = 0;
             try
             {
-                soc.Send(Encoding.ASCII.GetBytes(s));
+                s = soc.Send(Encoding.ASCII.GetBytes(input));
             }
             catch (SocketException e)
             {
                 //MessageBox.Show($"{e.Message}");
                 SetText($"sendData() error");
             }
-            
+            return s;            
         }
 
         private void SetText(string text)
@@ -118,21 +119,28 @@ namespace WindowsFormsApp5
             else listBox1.Items.Add(text);
         }
 
-        private void mapMovement(char starts, int ends)
+        /*
+        private bool requestMove()
+        {
+            if ( sendData(soc, new string(board_local)) > 0 )
+        }
+        */
+
+        private void mapMovement(char starts, int ends, char[] board)
         {
             char player;
             if (turn == true) player = 'X';
             else              player = 'O';
 
-            if      (starts == 'a') game_status[ends + 0 - 1] = player;
-            else if (starts == 'b') game_status[ends + 3 - 1] = player;
-            else if (starts == 'c') game_status[ends + 6 - 1] = player;
+            if      (starts == 'a') board[ends + 0 - 1] = player;
+            else if (starts == 'b') board[ends + 3 - 1] = player;
+            else if (starts == 'c') board[ends + 6 - 1] = player;
             else
             {
                 SetText("mapMovement() error");
                 return;
             }
-            //SetText(new string(game_status));
+            //SetText(new string(board));
             //listBox1.TopIndex = listBox1.Items.Count - 1;
         }
 
@@ -143,10 +151,19 @@ namespace WindowsFormsApp5
                 return;
 
             if (turn) b.Text = "X";
-            else b.Text = "O";
+            else      b.Text = "O";
 
-            checkWinner(b);
-            mapMovement(b.Name[0], b.Name[1] - '0');    // - '0' converts to int value instead of ascii
+            mapMovement(b.Name[0], b.Name[1] - '0', board_local);    // - '0' converts to int value instead of ascii
+            b.ForeColor = Color.Red;          // sending vote to server, red means not approved yet, local board changed
+            
+            /*if(gotVoteResult)
+                  b.ForeColor = Color.Black;
+
+              store the result in board_remote, compare it to board_local,
+              update the UI and board_local = board_remote
+            */
+
+            checkWinner(b);     //send a signal to the server, albo server bedzie sprawdzal czy ktos wygral
             turn = !turn;
             textBox1.Select();
         }
@@ -159,6 +176,7 @@ namespace WindowsFormsApp5
 
         private void checkWinner(Button b)
         {
+            bool full_board = true;
             //horizontal
             if (buttonComparison(a1, a2, a3) || buttonComparison(b1, b2, b3) || buttonComparison(c1, c2, c3))
                 someone_won = true;
@@ -170,6 +188,15 @@ namespace WindowsFormsApp5
                 someone_won = true;
 
             if (someone_won) playerWon(b);
+
+            foreach (Control c in Controls)
+                if (c is GroupBox)
+                    foreach (Control x in c.Controls)
+                        if (x is Button && x.Text.Length == 0)      //if theres at least one button empty
+                            full_board = false;
+
+            if (full_board)
+                groupBox1.Enabled = false;
         }
 
         private void playerWon(Button b)
@@ -191,14 +218,14 @@ namespace WindowsFormsApp5
 
         private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            foreach (Control c in Controls)
-            {
+            foreach (Control c in Controls)                 //clear the controls
                 if (c is GroupBox)
-                {
                     foreach (Control b in c.Controls)
                         if (b is Button) b.Text = "";
-                }
-            }
+
+            for (int i = 0; i < board_local.Length; i++)    //and the local board
+                board_local[i] = 'n';
+
             //listBox1.Items.Clear();
             SetText("New game started");
             listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
@@ -211,7 +238,7 @@ namespace WindowsFormsApp5
         {
             if (textBox1.Text.Length == 0) return;
             SetText($"you: {textBox1.Text}");
-            sendData(soc);
+            sendData(soc, textBox1.Text);
             listBox1.TopIndex = listBox1.Items.Count - 1; 
             textBox1.Clear();
         }
