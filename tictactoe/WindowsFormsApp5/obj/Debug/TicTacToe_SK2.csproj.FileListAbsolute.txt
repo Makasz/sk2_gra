@@ -28,3 +28,13 @@ C:\Users\Felipe\Desktop\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.cspro
 C:\Users\Felipe\Desktop\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.CoreCompileInputs.cache
 C:\Users\Felipe\Desktop\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
 C:\Users\Felipe\Desktop\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe.config
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.pdb
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csprojResolveAssemblyReference.cache
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.TicTacToe.resources
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.Properties.Resources.resources
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.GenerateResource.Cache
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.CoreCompileInputs.cache
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb

@@ -7,19 +7,77 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+using System.Net.Sockets;
+using System.Net;
+using System.IO;
+
+
 
 namespace WindowsFormsApp5
 {
     public partial class TicTacToe : Form
     {
+        string addr = "192.168.1.86";
+        int port = 12345;
+
         bool turn = true;
         bool someone_won = false;
+        IPAddress ipAddr;
+        Socket soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        delegate void StringArgReturningVoidDelegate(string text);
 
         public TicTacToe()
         {
             InitializeComponent();
             textBox1.Select();
-        }        
+
+            Thread newThread = new Thread(executeInForeground);
+            newThread.Start();
+        }
+
+        private void executeInForeground()
+        {
+            connectToServer();
+            receiveData(soc);
+        }
+
+        private void connectToServer()
+        {
+            ipAddr = IPAddress.Parse(addr);
+            IPEndPoint remoteEP = new IPEndPoint(ipAddr, port);
+            soc.Connect(remoteEP);
+        }
+
+        private void receiveData(Socket soc)
+        {
+            byte[] recBuffer = new byte[10];
+            while (true)
+            {
+                if (soc.Receive(recBuffer) > 0)
+                    SetText(Encoding.ASCII.GetString(recBuffer));
+            }
+        }
+
+        private void sendData(Socket soc)
+        {
+            string s = textBox1.Text;
+            soc.Send(Encoding.ASCII.GetBytes(s));
+        }
+
+        private void SetText(string text)
+        {
+            if (listBox1.InvokeRequired)
+            {
+                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(SetText);
+                Invoke(d, new object[] { text });
+            }
+            else
+            {
+                listBox1.Items.Add(text);
+            }
+        }
 
         private void onButtonClick(object sender, EventArgs e)
         {
@@ -73,7 +131,7 @@ namespace WindowsFormsApp5
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Program made by Phil Bugaj and Mike Lesny.\n" +
-                "Special thanks to Kan Jonczak for being a project supervisor.");
+                "Special thanks to Jan Konczak for being a project supervisor.");
         }
 
         private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -100,7 +158,8 @@ namespace WindowsFormsApp5
         {
             if (textBox1.Text.Length == 0)
                 return;
-            listBox1.Items.Add(textBox1.Text);
+            listBox1.Items.Add($"you: {textBox1.Text}");
+            sendData(soc);
             listBox1.TopIndex = listBox1.Items.Count - 1; 
             textBox1.Clear();
         }
