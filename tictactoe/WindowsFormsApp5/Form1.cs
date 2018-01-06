@@ -12,15 +12,24 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 
+/* todo
+    - interpretacja polecen odbieranych przez serwer
+    - wysylanie stanu gry do serwera
+    - wybrany kandydat na ruch, zatwierdzenie przez serwer (zmiana koloru pola)
+    - czat?
+    - opcje
+*/
 
 
 namespace WindowsFormsApp5
 {
     public partial class TicTacToe : Form
     {
-        string addr = "192.168.1.86";
+        string addr = "127.0.0.1";
         int port = 12345;
-
+        //  'n' is none, 'X' is team1, 'O' is team2
+        char[] game_status = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
+        
         bool turn = true;
         bool someone_won = false;
         IPAddress ipAddr;
@@ -32,7 +41,6 @@ namespace WindowsFormsApp5
         {
             InitializeComponent();
             textBox1.Select();
-
             Thread newThread = new Thread(executeInForeground);
             newThread.Start();
         }
@@ -47,23 +55,57 @@ namespace WindowsFormsApp5
         {
             ipAddr = IPAddress.Parse(addr);
             IPEndPoint remoteEP = new IPEndPoint(ipAddr, port);
-            soc.Connect(remoteEP);
+            try
+            {
+                soc.Connect(remoteEP);
+            }
+            catch (SocketException e)
+            {
+                //MessageBox.Show(e.Message);
+                SetText("connectToServer() error");
+                //soc.Close();
+            }
+                
         }
 
         private void receiveData(Socket soc)
         {
             byte[] recBuffer = new byte[10];
+            int delay = 1000 * 60;
             while (true)
             {
-                if (soc.Receive(recBuffer) > 0)
-                    SetText(Encoding.ASCII.GetString(recBuffer));
+                try
+                {
+                    if (soc.Receive(recBuffer) > 0)
+                        SetText(Encoding.ASCII.GetString(recBuffer));
+                }
+                catch (Exception e)
+                {
+                    if(e is ObjectDisposedException || e is SocketException)
+                    {
+                        SetText($"couldn't receive data. Waiting for {delay/1000} sec.");
+                        //MessageBox.Show($"{e.Message}");
+                        Thread.Sleep(delay);
+                    }
+                    //throw;                        
+                }
+                
             }
         }
 
         private void sendData(Socket soc)
         {
             string s = textBox1.Text;
-            soc.Send(Encoding.ASCII.GetBytes(s));
+            try
+            {
+                soc.Send(Encoding.ASCII.GetBytes(s));
+            }
+            catch (SocketException e)
+            {
+                //MessageBox.Show($"{e.Message}");
+                SetText($"sendData() error");
+            }
+            
         }
 
         private void SetText(string text)
@@ -73,10 +115,25 @@ namespace WindowsFormsApp5
                 StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(SetText);
                 Invoke(d, new object[] { text });
             }
+            else listBox1.Items.Add(text);
+        }
+
+        private void mapMovement(char starts, int ends)
+        {
+            char player;
+            if (turn == true) player = 'X';
+            else              player = 'O';
+
+            if      (starts == 'a') game_status[ends + 0 - 1] = player;
+            else if (starts == 'b') game_status[ends + 3 - 1] = player;
+            else if (starts == 'c') game_status[ends + 6 - 1] = player;
             else
             {
-                listBox1.Items.Add(text);
+                SetText("mapMovement() error");
+                return;
             }
+            //SetText(new string(game_status));
+            //listBox1.TopIndex = listBox1.Items.Count - 1;
         }
 
         private void onButtonClick(object sender, EventArgs e)
@@ -85,12 +142,11 @@ namespace WindowsFormsApp5
             if (!String.IsNullOrEmpty(b.Text))
                 return;
 
-            if (turn)
-                b.Text = "X";
-            else
-                b.Text = "O";
+            if (turn) b.Text = "X";
+            else b.Text = "O";
 
             checkWinner(b);
+            mapMovement(b.Name[0], b.Name[1] - '0');    // - '0' converts to int value instead of ascii
             turn = !turn;
             textBox1.Select();
         }
@@ -113,14 +169,13 @@ namespace WindowsFormsApp5
             if (buttonComparison(a1, b2, c3) || buttonComparison(a3, b2, c1))
                 someone_won = true;
 
-            if (someone_won)
-                playerWon(b);
+            if (someone_won) playerWon(b);
         }
 
         private void playerWon(Button b)
         {
             groupBox1.Enabled = false;
-            listBox1.Items.Add($"Player {b.Text} won.");
+            SetText($"Player {b.Text} won.");
         }
 
         private void quitToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -141,24 +196,21 @@ namespace WindowsFormsApp5
                 if (c is GroupBox)
                 {
                     foreach (Control b in c.Controls)
-                    {
-                        if (b is Button)
-                            b.Text = "";
-                    }
+                        if (b is Button) b.Text = "";
                 }
             }
             //listBox1.Items.Clear();
-            listBox1.Items.Add("New game started");
+            SetText("New game started");
             listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
             someone_won = false;
             groupBox1.Enabled = true;
+            turn = true;
         }
 
         private void send_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text.Length == 0)
-                return;
-            listBox1.Items.Add($"you: {textBox1.Text}");
+            if (textBox1.Text.Length == 0) return;
+            SetText($"you: {textBox1.Text}");
             sendData(soc);
             listBox1.TopIndex = listBox1.Items.Count - 1; 
             textBox1.Clear();
