@@ -17,7 +17,6 @@ using System.IO;
     - wysylanie stanu gry do serwera
     - wybrany kandydat na ruch, zatwierdzenie przez serwer (zmiana koloru pola)
     - czat?
-    - opcje
 */
 
 
@@ -27,6 +26,7 @@ namespace WindowsFormsApp5
     {
         string addr = "127.0.0.1";
         int port = 12345;
+        string name = "New Player";
         //  'n' is none, 'X' is team1, 'O' is team2
         char[] board_local  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
         char[] board_remote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
@@ -38,6 +38,16 @@ namespace WindowsFormsApp5
         byte[] recBuffer = new byte[20];
 
         delegate void StringArgReturningVoidDelegate(string text);
+
+        public static class GetIP {
+            public static string getIP { get; set; }
+        }
+        public static class GetPort {
+            public static int getPort { get; set; }
+        }
+        public static class GetName {
+            public static string getName { get; set; }
+        }
 
         public TicTacToe()
         {
@@ -154,7 +164,7 @@ namespace WindowsFormsApp5
             else      b.Text = "O";
 
             mapMovement(b.Name[0], b.Name[1] - '0', board_local);    // - '0' converts to int value instead of ascii
-            b.ForeColor = Color.Red;          // sending vote to server, red means not approved yet, local board changed
+            b.ForeColor = Color.Red;          // send vote to server, red means not approved yet, local board changed
             
             /*if(gotVoteResult)
                   b.ForeColor = Color.Black;
@@ -218,12 +228,17 @@ namespace WindowsFormsApp5
 
         private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            /*TODO
+             send some kind of a message to the server that will request a new game, 
+             then wait for server response
+             */
+            
             foreach (Control c in Controls)                 //clear the controls
                 if (c is GroupBox)
                     foreach (Control b in c.Controls)
                         if (b is Button) b.Text = "";
 
-            for (int i = 0; i < board_local.Length; i++)    //and the local board
+            for (int i = 0; i < board_local.Length; i++)    //clear the local board
                 board_local[i] = 'n';
 
             //listBox1.Items.Clear();
@@ -231,7 +246,7 @@ namespace WindowsFormsApp5
             listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
             someone_won = false;
             groupBox1.Enabled = true;
-            turn = true;
+            turn = true;                                    // 'X' always starts
         }
 
         private void send_Click(object sender, EventArgs e)
@@ -241,6 +256,7 @@ namespace WindowsFormsApp5
             sendData(soc, textBox1.Text);
             listBox1.TopIndex = listBox1.Items.Count - 1; 
             textBox1.Clear();
+            textBox1.Select();
         }
 
         private void send_KeyPress(object sender, KeyPressEventArgs e)
@@ -254,7 +270,16 @@ namespace WindowsFormsApp5
 
         private void optionsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Not implemented yet.");
+            OptionsBox.Show();
+            addr = GetIP.getIP;
+            port = GetPort.getPort;
+            name = GetName.getName;
+        }
+
+        private void clear_button_Click(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            listBox1.Select();
         }
     }
 }

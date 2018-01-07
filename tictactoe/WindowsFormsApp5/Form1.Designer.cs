@@ -48,6 +48,7 @@
             this.b3 = new System.Windows.Forms.Button();
             this.a3 = new System.Windows.Forms.Button();
             this.b2 = new System.Windows.Forms.Button();
+            this.clear_button = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(428, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(421, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -98,14 +99,14 @@
             // optionsToolStripMenuItem1
             // 
             this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
-            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
             this.optionsToolStripMenuItem1.Text = "Options";
             this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.optionsToolStripMenuItem1_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -121,15 +122,15 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(12, 475);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(316, 20);
+            this.textBox1.Size = new System.Drawing.Size(293, 20);
             this.textBox1.TabIndex = 15;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.send_KeyPress);
             // 
             // send
             // 
-            this.send.Location = new System.Drawing.Point(334, 475);
+            this.send.Location = new System.Drawing.Point(311, 475);
             this.send.Name = "send";
-            this.send.Size = new System.Drawing.Size(75, 23);
+            this.send.Size = new System.Drawing.Size(66, 23);
             this.send.TabIndex = 16;
             this.send.Text = "Send";
             this.send.UseVisualStyleBackColor = true;
@@ -242,11 +243,23 @@
             this.b2.UseVisualStyleBackColor = true;
             this.b2.Click += new System.EventHandler(this.onButtonClick);
             // 
+            // clear_button
+            // 
+            this.clear_button.Location = new System.Drawing.Point(383, 475);
+            this.clear_button.Name = "clear_button";
+            this.clear_button.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.clear_button.Size = new System.Drawing.Size(26, 23);
+            this.clear_button.TabIndex = 18;
+            this.clear_button.Text = "C";
+            this.clear_button.UseVisualStyleBackColor = true;
+            this.clear_button.Click += new System.EventHandler(this.clear_button_Click);
+            // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(428, 504);
+            this.ClientSize = new System.Drawing.Size(421, 504);
+            this.Controls.Add(this.clear_button);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.send);
             this.Controls.Add(this.textBox1);
@@ -284,6 +297,7 @@
         private System.Windows.Forms.Button b3;
         private System.Windows.Forms.Button a3;
         private System.Windows.Forms.Button b2;
+        private System.Windows.Forms.Button clear_button;
     }
 }
 

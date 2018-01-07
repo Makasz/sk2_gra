@@ -38,3 +38,4 @@ C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\D
 C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.CoreCompileInputs.cache
 C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
 C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb
+C:\Users\Felipe\Dysk Google\SK2_projekt\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.OptionsBox.resources
