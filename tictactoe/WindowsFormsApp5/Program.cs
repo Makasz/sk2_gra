@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TicTacToe_SK2;
 
-namespace WindowsFormsApp5
+namespace TicTacToe_SK2
 {
     static class Program
     {

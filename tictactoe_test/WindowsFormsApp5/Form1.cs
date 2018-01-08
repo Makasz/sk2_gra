@@ -24,24 +24,24 @@ namespace WindowsFormsApp5
 {
     public partial class TicTacToe : Form
     {
-        string addr = "127.0.0.1";
-        int port = 12345;
-        string name = "New Player";
+        string _addr = "127.0.0.1";
+        int _port = 12345;
+        string _name = "New Player";
         //  'n' is none, 'X' is team1, 'O' is team2
-        char[] board_local  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
-        char[] board_remote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
+        char[] _boardLocal  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
+        char[] _boardRemote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
 
-        bool turn = true;
-        bool someone_won = false;
-        IPAddress ipAddr;
-        Socket soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        Thread newThread;
-        byte[] recBuffer = new byte[20];
-        bool close_thread = false;
+        bool _turn = true;
+        bool _someoneWon = false;
+        IPAddress _ipAddr;
+        Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Thread _newThread;
+        byte[] _recBuffer = new byte[20];
+        bool _closeThread = false;
 
         delegate void StringArgReturningVoidDelegate(string text);
 
-        public static class GetIP {
+        public static class GetIp {
             public static string getIP { get; set; }
         }
         public static class GetPort {
@@ -54,30 +54,30 @@ namespace WindowsFormsApp5
         public TicTacToe()
         {
             InitializeComponent();
-            GetIP.getIP = addr;
-            GetPort.getPort = port;
-            GetName.getName = name;
+            GetIp.getIP = _addr;
+            GetPort.getPort = _port;
+            GetName.getName = _name;
 
             textBox1.Select();
-            newThread = new Thread(executeInForeground);
-            newThread.Start();
+            _newThread = new Thread(ExecuteInForeground);
+            _newThread.Start();
         }
 
-        private void executeInForeground()
+        private void ExecuteInForeground()
         {
-            connectToServer();
-            receiveData(soc);
+            ConnectToServer();
+            ReceiveData(_soc);
         }
 
-        private void connectToServer()
+        private void ConnectToServer()
         {
-            ipAddr = IPAddress.Parse(GetIP.getIP);
-            IPEndPoint remoteEP = new IPEndPoint(ipAddr, GetPort.getPort);
+            _ipAddr = IPAddress.Parse(GetIp.getIP);
+            IPEndPoint remoteEp = new IPEndPoint(_ipAddr, GetPort.getPort);
             //ipAddr = IPAddress.Parse(addr);
             //IPEndPoint remoteEP = new IPEndPoint(ipAddr, port);
             try
             {
-                soc.Connect(remoteEP);
+                _soc.Connect(remoteEp);
             }
             catch (SocketException e)
             {
@@ -88,24 +88,22 @@ namespace WindowsFormsApp5
                 
         }
 
-        private void receiveData(Socket soc)
+        private void ReceiveData(Socket soc)
         {
             int delay = 1000 * 20;
-            while (!close_thread)
+            while (!_closeThread)
             {
                 try
                 {
-                    if (soc.Receive(recBuffer) > 0)
-                        SetText(Encoding.ASCII.GetString(recBuffer));
+                    if (soc.Receive(_recBuffer) > 0)
+                        SetText(Encoding.ASCII.GetString(_recBuffer));
                 }
                 catch (Exception e)
                 {
-                    if(e is ObjectDisposedException || e is SocketException)
-                    {
-                        SetText($"couldn't receive data. Waiting for {delay/1000} sec.");
-                        //MessageBox.Show($"{e.Message}");
-                        Thread.Sleep(delay);
-                    }
+                    if (!(e is ObjectDisposedException) && !(e is SocketException)) continue;
+                    SetText($"couldn't receive data. Waiting for {delay/1000} sec.");
+                    //MessageBox.Show($"{e.Message}");
+                    Thread.Sleep(delay);
                     //throw;                        
                 }                
             }
@@ -113,7 +111,7 @@ namespace WindowsFormsApp5
             soc.Disconnect(true);
         }
 
-        private int sendData(Socket soc, string input)
+        private int SendData(Socket soc, string input)
         {
             int s = 0;
             try
@@ -132,8 +130,8 @@ namespace WindowsFormsApp5
         {
             if (listBox1.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(SetText);
-                Invoke(d, new object[] { text });
+                StringArgReturningVoidDelegate d = SetText;
+                Invoke(d, text);
             }
             else
             {
@@ -150,10 +148,10 @@ namespace WindowsFormsApp5
         }
         */
 
-        private void mapMovement(char starts, int ends, char[] board)
+        private void MapMovement(char starts, int ends, char[] board)
         {
             char player;
-            if (turn == true) player = 'X';
+            if (_turn) player = 'X';
             else              player = 'O';
 
             if      (starts == 'a') board[ends + 0 - 1] = player;
@@ -162,21 +160,19 @@ namespace WindowsFormsApp5
             else
             {
                 SetText("mapMovement() error");
-                return;
             }
             //SetText(new string(board));
         }
 
-        private void onButtonClick(object sender, EventArgs e)
+        private void OnButtonClick(object sender, EventArgs e)
         {
-            Button b = (Button)sender;
-            if (!String.IsNullOrEmpty(b.Text))
+            var b = (Button)sender;
+            if (!string.IsNullOrEmpty(b.Text))
                 return;
 
-            if (turn) b.Text = "X";
-            else      b.Text = "O";
+            b.Text = _turn ? "X" : "O";
 
-            mapMovement(b.Name[0], b.Name[1] - '0', board_local);    // - '0' converts to int value instead of ascii
+            MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal);    // - '0' converts to int value instead of ascii
             b.ForeColor = Color.Red;          // send vote to server, red means not approved yet, local board changed
             
             /*if(gotVoteResult)
@@ -186,43 +182,41 @@ namespace WindowsFormsApp5
               update the UI and board_local = board_remote
             */
 
-            checkWinner(b);     //send a signal to the server, albo server bedzie sprawdzal czy ktos wygral
-            turn = !turn;
+            CheckWinner(b);     //send a signal to the server, albo server bedzie sprawdzal czy ktos wygral
+            _turn = !_turn;
             textBox1.Select();
         }
-        private bool buttonComparison(Button b1, Button b2, Button b3)
+        private bool ButtonComparison(Button b1, Button b2, Button b3)
         {
-            if ((b1.Text == b2.Text) && (b2.Text == b3.Text) && b1.Text.Length != 0)
-                return true;
-            else return false;
+            return (b1.Text == b2.Text) && (b2.Text == b3.Text) && b1.Text.Length != 0;
         }
 
-        private void checkWinner(Button b)
+        private void CheckWinner(Button b)
         {
-            bool full_board = true;
+            bool fullBoard = true;
             //horizontal
-            if (buttonComparison(a1, a2, a3) || buttonComparison(b1, b2, b3) || buttonComparison(c1, c2, c3))
-                someone_won = true;
+            if (ButtonComparison(a1, a2, a3) || ButtonComparison(b1, b2, b3) || ButtonComparison(c1, c2, c3))
+                _someoneWon = true;
             //vertical
-            if (buttonComparison(a1, b1, c1) || buttonComparison(a2, b2, c2) || buttonComparison(a3, b3, c3))
-                someone_won = true;
+            if (ButtonComparison(a1, b1, c1) || ButtonComparison(a2, b2, c2) || ButtonComparison(a3, b3, c3))
+                _someoneWon = true;
             //diagonal
-            if (buttonComparison(a1, b2, c3) || buttonComparison(a3, b2, c1))
-                someone_won = true;
+            if (ButtonComparison(a1, b2, c3) || ButtonComparison(a3, b2, c1))
+                _someoneWon = true;
 
-            if (someone_won) playerWon(b);
+            if (_someoneWon) PlayerWon(b);
 
             foreach (Control c in Controls)
                 if (c is GroupBox)
                     foreach (Control x in c.Controls)
                         if (x is Button && x.Text.Length == 0)      //if theres at least one button empty
-                            full_board = false;
+                            fullBoard = false;
 
-            if (full_board)
+            if (fullBoard)
                 groupBox1.Enabled = false;
         }
 
-        private void playerWon(Button b)
+        private void PlayerWon(Button b)
         {
             groupBox1.Enabled = false;
             SetText($"Player {b.Text} won.");
@@ -251,40 +245,38 @@ namespace WindowsFormsApp5
                     foreach (Control b in c.Controls)
                         if (b is Button) b.Text = "";
 
-            for (int i = 0; i < board_local.Length; i++)    //clear the local board
-                board_local[i] = 'n';
+            for (int i = 0; i < _boardLocal.Length; i++)    //clear the local board
+                _boardLocal[i] = 'n';
 
             //listBox1.Items.Clear();
             SetText("New game started");
-            someone_won = false;
+            _someoneWon = false;
             groupBox1.Enabled = true;
-            turn = true;                                    // 'X' always starts
+            _turn = true;                                    // 'X' always starts
         }
 
         private void send_Click(object sender, EventArgs e)
         {
             if (textBox1.Text.Length == 0) return;
             SetText($"you: {textBox1.Text}");
-            sendData(soc, textBox1.Text);
+            SendData(_soc, textBox1.Text);
             textBox1.Clear();
             textBox1.Select();
         }
 
         private void send_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == (char)13)
-            {
-                send_Click(sender, e);
-                e.Handled = true;       //żeby nie pikało
-            }
+            if (e.KeyChar != (char) 13) return;
+            send_Click(sender, e);
+            e.Handled = true;       //żeby nie pikało
         }
 
         private void optionsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             OptionsBox.Show();
-            addr = GetIP.getIP;
-            port = GetPort.getPort;
-            name = GetName.getName;
+            _addr = GetIp.getIP;
+            _port = GetPort.getPort;
+            _name = GetName.getName;
         }
 
         private void clear_button_Click(object sender, EventArgs e)
@@ -295,12 +287,12 @@ namespace WindowsFormsApp5
 
         private void reconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            close_thread = true;
-            newThread.Abort();
+            _closeThread = true;
+            _newThread.Abort();
             //newThread.Join();
-            newThread = new Thread(executeInForeground);
-            close_thread = false;
-            newThread.Start();
+            _newThread = new Thread(ExecuteInForeground);
+            _closeThread = false;
+            _newThread.Start();
         }
     }
 }

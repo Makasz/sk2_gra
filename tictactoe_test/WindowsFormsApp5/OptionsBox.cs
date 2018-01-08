@@ -19,7 +19,7 @@ namespace WindowsFormsApp5
         public OptionsBox()
         {
             InitializeComponent();
-            textBoxIP.Text = TicTacToe.GetIP.getIP;
+            textBoxIP.Text = TicTacToe.GetIp.getIP;
             textBoxPort.Text = TicTacToe.GetPort.getPort.ToString();
             textBoxName.Text = TicTacToe.GetName.getName;
         }
@@ -29,7 +29,7 @@ namespace WindowsFormsApp5
         {
             myOptionsBox = new OptionsBox();
             myOptionsBox.ShowDialog();
-            myOptionsBox.textBoxIP.Text = TicTacToe.GetIP.getIP;
+            myOptionsBox.textBoxIP.Text = TicTacToe.GetIp.getIP;
             myOptionsBox.textBoxPort.Text = TicTacToe.GetPort.getPort.ToString();
             myOptionsBox.textBoxName.Text = TicTacToe.GetName.getName;
             return result;
@@ -37,7 +37,7 @@ namespace WindowsFormsApp5
 
         private void buttonOk_Click_1(object sender, EventArgs e)
         {
-            TicTacToe.GetIP.getIP = textBoxIP.Text;
+            TicTacToe.GetIp.getIP = textBoxIP.Text;
             TicTacToe.GetPort.getPort = Int32.Parse(textBoxPort.Text);
             TicTacToe.GetName.getName = textBoxName.Text;
             result = DialogResult.Yes;
