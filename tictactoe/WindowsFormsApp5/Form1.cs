@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 /* todo
     - interpretacja polecen odbieranych przez serwer
@@ -19,25 +20,30 @@ namespace TicTacToe_SK2
 {
     public partial class TicTacToe : Form
     {
-        string _addr = "127.0.0.1";
+        string _addr = "192.168.1.106";
+        //string _addr = "127.0.0.1";
         int _port = 12345;
         //  'n' is none, 'X' is team1, 'O' is team2
-        char[] _boardLocal  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9
+        char[] _boardLocal  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9,
         char[] _boardRemote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
+        private List<Button> _buttonList;
 
         bool _turn = true;
         bool _someoneWon = false;
         IPAddress _ipAddr;
         Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        byte[] _recBuffer = new byte[20];
+        private int _r;
+        private string _msg_buffer;
 
         delegate void StringArgReturningVoidDelegate(string text);
 
         public TicTacToe()
         {
             InitializeComponent();
+            _buttonList = new List<Button> { a1, a2, a3, b1, b2, b3, c1, c2, c3 };
+
             textBox1.Select();
-            Thread newThread = new Thread(ExecuteInForeground);
+            Thread newThread = new Thread(ExecuteInForeground) { IsBackground = true };
             newThread.Start();
         }
 
@@ -66,13 +72,15 @@ namespace TicTacToe_SK2
 
         private void ReceiveData(Socket soc)
         {
-            int delay = 1000 * 20;
+            const int delay = 1000 * 20;
+            byte[] recBuffer = new byte[20];
             while (true)
             {
                 try
                 {
-                    if (soc.Receive(_recBuffer) > 0)
-                        SetText(Encoding.ASCII.GetString(_recBuffer));
+                    _r = soc.Receive(recBuffer);
+                    if (_r > 0)
+                        _msg_buffer = Encoding.ASCII.GetString(recBuffer);
                 }
                 catch (Exception e)
                 {
@@ -93,10 +101,10 @@ namespace TicTacToe_SK2
             {
                 s = soc.Send(Encoding.ASCII.GetBytes(input));
             }
-            catch (SocketException e)
+            catch (SocketException)
             {
                 //MessageBox.Show($"{e.Message}");
-                SetText($"sendData() error");
+                SetText("sendData() error");
             }
             return s;            
         }
@@ -108,8 +116,13 @@ namespace TicTacToe_SK2
                 StringArgReturningVoidDelegate d = SetText;
                 Invoke(d, text);
             }
-            else listBox1.Items.Add(text);
+            else
+            {
+                listBox1.Items.Add(text);
+                listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
+            }
         }
+  
 
         /*
         private bool requestMove()
@@ -118,10 +131,8 @@ namespace TicTacToe_SK2
         }
         */
 
-        private void MapMovement(char starts, int ends, char[] board)
+        private void MapMovement(char starts, int ends, char[] board, char player)
         {
-            var player = _turn ? 'X' : 'O';
-
             switch (starts)
             {
                 case 'a':
@@ -137,10 +148,8 @@ namespace TicTacToe_SK2
                     SetText("mapMovement() error");
                     return;
             }
-
-            //SetText(new string(board));
-            //listBox1.TopIndex = listBox1.Items.Count - 1;
         }
+
 
         private void OnButtonClick(object sender, EventArgs e)
         {
@@ -148,11 +157,42 @@ namespace TicTacToe_SK2
             if (!String.IsNullOrEmpty(b.Text))
                 return;
 
-            b.Text = _turn ? "X" : "O";
-
-            MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal);    // - '0' converts to int value instead of ascii
-            b.ForeColor = Color.Red;          // sending vote to server, red means not approved yet, local board changed
+            var player = _turn ? 'X' : 'O';
             
+            b.Text = player.ToString();
+            //var boardLocalCpy = _boardLocal;
+
+            MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, player);    // make move on the board
+            b.ForeColor = Color.Red;                                         // move is not approved yet
+
+            SendData(_soc, "v" + new string(_boardLocal));                               // sending vote to server
+
+            if (_r > 0)                                                      // received some data
+            {                                                               // check its is vote or msg
+                if (_msg_buffer.StartsWith("v"))                     
+                {
+                    _boardRemote = _msg_buffer.Substring(1, _msg_buffer.Length - 1).ToCharArray();  // save data received from server
+                    if (_boardLocal.Length != _boardRemote.Length)
+                        SetText("Wrong size of boards");
+                    SetText($"{new string(_boardLocal)} : {_boardLocal.Length}, {new string(_boardRemote)}: {_boardRemote.Length}");
+
+                    for (var i = 0; i < _boardLocal.Length - 1; i++)
+                    {
+                        if (_boardRemote[i] != _boardLocal[i])                                     
+                        {
+                            _buttonList[i].Text = player.ToString();            // rewind the move
+                            b.Text = "";
+                            _boardLocal = _boardRemote;
+                        }
+                    }
+                    b.ForeColor = Color.Black;
+                }
+                else if (_msg_buffer.StartsWith("m"))
+                    SetText(_msg_buffer.Substring(1, _msg_buffer.Length - 1));
+                
+            }
+            _r = 0;
+
             /*if(gotVoteResult)
                   b.ForeColor = Color.Black;
 
@@ -160,7 +200,7 @@ namespace TicTacToe_SK2
               update the UI and board_local = board_remote
             */
 
-            checkWinner(b);     //send a signal to the server, albo server bedzie sprawdzal czy ktos wygral
+            CheckWinner(b);     //send a signal to the server
             _turn = !_turn;
             textBox1.Select();
         }
@@ -169,7 +209,7 @@ namespace TicTacToe_SK2
             return (b1.Text == b2.Text) && (b2.Text == b3.Text) && b1.Text.Length != 0;
         }
 
-        private void checkWinner(Button b)
+        private void CheckWinner(Button b)
         {
             bool fullBoard = true;
             //horizontal
@@ -223,7 +263,6 @@ namespace TicTacToe_SK2
 
             //listBox1.Items.Clear();
             SetText("New game started");
-            listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
             _someoneWon = false;
             groupBox1.Enabled = true;
             _turn = true;
@@ -234,7 +273,6 @@ namespace TicTacToe_SK2
             if (textBox1.Text.Length == 0) return;
             SetText($"you: {textBox1.Text}");
             SendData(_soc, textBox1.Text);
-            listBox1.TopIndex = listBox1.Items.Count - 1; 
             textBox1.Clear();
         }
 
