@@ -49,6 +49,7 @@
             this.b3 = new System.Windows.Forms.Button();
             this.a3 = new System.Windows.Forms.Button();
             this.b2 = new System.Windows.Forms.Button();
+            this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -76,14 +77,14 @@
             // newGameToolStripMenuItem1
             // 
             this.newGameToolStripMenuItem1.Name = "newGameToolStripMenuItem1";
-            this.newGameToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.newGameToolStripMenuItem1.Size = new System.Drawing.Size(131, 22);
             this.newGameToolStripMenuItem1.Text = "New game";
             this.newGameToolStripMenuItem1.Click += new System.EventHandler(this.newGameToolStripMenuItem1_Click);
             // 
             // quitToolStripMenuItem1
             // 
             this.quitToolStripMenuItem1.Name = "quitToolStripMenuItem1";
-            this.quitToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.quitToolStripMenuItem1.Size = new System.Drawing.Size(131, 22);
             this.quitToolStripMenuItem1.Text = "Quit";
             this.quitToolStripMenuItem1.Click += new System.EventHandler(this.quitToolStripMenuItem1_Click);
             // 
@@ -91,7 +92,8 @@
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.optionsToolStripMenuItem1,
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.restartToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.optionsToolStripMenuItem.Text = "More";
@@ -99,14 +101,14 @@
             // optionsToolStripMenuItem1
             // 
             this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
-            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
+            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.optionsToolStripMenuItem1.Text = "Options";
             this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.optionsToolStripMenuItem1_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -243,6 +245,13 @@
             this.b2.UseVisualStyleBackColor = true;
             this.b2.Click += new System.EventHandler(this.OnButtonClick);
             // 
+            // restartToolStripMenuItem
+            // 
+            this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.restartToolStripMenuItem.Text = "Restart";
+            this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
+            // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -253,9 +262,11 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "TicTacToe";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TicTacToe";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -286,6 +297,7 @@
         private System.Windows.Forms.Button b3;
         private System.Windows.Forms.Button a3;
         private System.Windows.Forms.Button b2;
+        private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
     }
 }
 

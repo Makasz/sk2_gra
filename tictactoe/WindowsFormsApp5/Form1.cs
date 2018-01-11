@@ -8,11 +8,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 
 /* todo
-    - interpretacja polecen odbieranych przez serwer
-    - wysylanie stanu gry do serwera
-    - wybrany kandydat na ruch, zatwierdzenie przez serwer (zmiana koloru pola)
-    - czat?
-    - opcje
+    - opcje?
 */
 
 
@@ -20,20 +16,24 @@ namespace TicTacToe_SK2
 {
     public partial class TicTacToe : Form
     {
-        string _addr = "192.168.1.106";
-        //string _addr = "127.0.0.1";
+        //string _addr = "192.168.1.106";
+        string _addr = "127.0.0.1";
         int _port = 12345;
         //  'n' is none, 'X' is team1, 'O' is team2
         char[] _boardLocal  = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };   //size 9,
         char[] _boardRemote = { 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n' };
         private List<Button> _buttonList;
 
-        bool _turn = true;
+        bool _waitingForVote = false;
+        bool _firstVoteReceived = false;
+        bool _xStarts = true;
+        //bool _turn = true;
+        private char _player = 'X';
         bool _someoneWon = false;
         IPAddress _ipAddr;
-        Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        readonly Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private int _r;
-        private string _msg_buffer;
+        private string _msgBuffer;
 
         delegate void StringArgReturningVoidDelegate(string text);
 
@@ -53,8 +53,14 @@ namespace TicTacToe_SK2
             ReceiveData(_soc);
         }
 
-        private void ConnectToServer()
+        /*
+        static bool IsSocketConnected(Socket s)
         {
+            return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
+        }
+        */
+        private void ConnectToServer()                          //todo while( notConnected) { try soc.connect() } 
+        {                                                            //connect nic nie zwraca
             _ipAddr = IPAddress.Parse(_addr);
             IPEndPoint remoteEp = new IPEndPoint(_ipAddr, _port);
             try
@@ -80,20 +86,74 @@ namespace TicTacToe_SK2
                 {
                     _r = soc.Receive(recBuffer);
                     if (_r > 0)
-                        _msg_buffer = Encoding.ASCII.GetString(recBuffer);
+                    {
+                        _msgBuffer = Encoding.ASCII.GetString(recBuffer);
+                        SetText(_msgBuffer);
+                        RecogniseMsg();
+                    }
                 }
                 catch (Exception e)
                 {
-                    if (!(e is ObjectDisposedException) && !(e is SocketException)) continue;
-                    SetText($"couldn't receive data. Waiting for {delay/1000} sec.");
-                    //MessageBox.Show($"{e.Message}");
-                    Thread.Sleep(delay);
+                    if (e is SocketException)
+                    {
+                        SetText($"couldn't receive data. Waiting for {delay / 1000} sec.");
+                        //MessageBox.Show($"{e.Message}");
+                        Thread.Sleep(delay);
+                    }
+                    else if (e is ObjectDisposedException){ }
+
                     //throw;                        
                 }
-                
             }
         }
 
+        private void RecogniseMsg()
+        {
+            if (_msgBuffer.StartsWith("v"))        //received vote
+            {
+                if (_msgBuffer[10] != _player)
+                    _waitingForVote = false;
+
+                _xStarts = false;
+                _boardLocal = _boardRemote;
+                SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
+                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();  
+                if (_boardLocal.Length != _buttonList.Count)
+                    SetText("Wrong size of boards");
+
+                SetText("received vote");
+                for (var i = 0; i < _buttonList.Count; i++)
+                {
+                    if (_boardRemote[i] != 'n' && (_boardRemote[i] == 'X' || _boardRemote[i] == 'O'))           //problem with ObjectDisposedException, controls doesnt refresh everytime
+                    {
+                        _buttonList[i].Text = _boardRemote[i].ToString();
+                        _buttonList[i].Refresh();
+                    }
+                }
+                CheckWinner();
+            }
+
+            else if (_msgBuffer.StartsWith("m"))
+            {
+                SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
+            }
+
+            else if (_msgBuffer.StartsWith("t"))               //nadawanie teamu
+            {
+                if (_msgBuffer[1].ToString() == "X")
+                {
+                    _player = 'X';
+                }
+                else if (_msgBuffer[1].ToString() == "O")
+                {
+                    _player = 'O';
+                }
+                else
+                    SetText("error while choosing a team");
+
+            }
+        }
+        
         private int SendData(Socket soc, string input)
         {
             int s = 0;
@@ -123,14 +183,6 @@ namespace TicTacToe_SK2
             }
         }
   
-
-        /*
-        private bool requestMove()
-        {
-            if ( sendData(soc, new string(board_local)) > 0 )
-        }
-        */
-
         private void MapMovement(char starts, int ends, char[] board, char player)
         {
             switch (starts)
@@ -149,59 +201,43 @@ namespace TicTacToe_SK2
                     return;
             }
         }
-
-
+        
         private void OnButtonClick(object sender, EventArgs e)
         {
             Button b = (Button)sender;
-            if (!String.IsNullOrEmpty(b.Text))
+            /*
+            if ( _mvCounter % 2 == 0 )
+            {
+                textBox1.Select();
                 return;
+            }*/
 
-            var player = _turn ? 'X' : 'O';
+            if ( _xStarts && _player != 'X' )
+            {
+                textBox1.Select();
+                return;
+            }
+            if (!String.IsNullOrEmpty(b.Text) || _waitingForVote)
+            {
+                textBox1.Select();
+                return;
+            }
+            _waitingForVote = true;
+
+            //var player = _turn ? 'X' : 'O';
             
-            b.Text = player.ToString();
+            b.Text = _player.ToString();
             //var boardLocalCpy = _boardLocal;
 
-            MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, player);    // make move on the board
-            b.ForeColor = Color.Red;                                         // move is not approved yet
+            MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);  
+            b.ForeColor = Color.Red;
 
-            SendData(_soc, "v" + new string(_boardLocal));                               // sending vote to server
-
-            if (_r > 0)                                                      // received some data
-            {                                                               // check its is vote or msg
-                if (_msg_buffer.StartsWith("v"))                     
-                {
-                    _boardRemote = _msg_buffer.Substring(1, _msg_buffer.Length - 1).ToCharArray();  // save data received from server
-                    if (_boardLocal.Length != _boardRemote.Length)
-                        SetText("Wrong size of boards");
-                    SetText($"{new string(_boardLocal)} : {_boardLocal.Length}, {new string(_boardRemote)}: {_boardRemote.Length}");
-
-                    for (var i = 0; i < _boardLocal.Length - 1; i++)
-                    {
-                        if (_boardRemote[i] != _boardLocal[i])                                     
-                        {
-                            _buttonList[i].Text = player.ToString();            // rewind the move
-                            b.Text = "";
-                            _boardLocal = _boardRemote;
-                        }
-                    }
-                    b.ForeColor = Color.Black;
-                }
-                else if (_msg_buffer.StartsWith("m"))
-                    SetText(_msg_buffer.Substring(1, _msg_buffer.Length - 1));
-                
-            }
+            
+            SendData(_soc, "v" + new string(_boardLocal) + _player);                              
             _r = 0;
 
-            /*if(gotVoteResult)
-                  b.ForeColor = Color.Black;
-
-              store the result in board_remote, compare it to board_local,
-              update the UI and board_local = board_remote
-            */
-
-            CheckWinner(b);     //send a signal to the server
-            _turn = !_turn;
+            CheckWinner();    
+            //_turn = !_turn;
             textBox1.Select();
         }
         private bool ButtonComparison(Button b1, Button b2, Button b3)
@@ -209,7 +245,7 @@ namespace TicTacToe_SK2
             return (b1.Text == b2.Text) && (b2.Text == b3.Text) && b1.Text.Length != 0;
         }
 
-        private void CheckWinner(Button b)
+        private void CheckWinner()
         {
             bool fullBoard = true;
             //horizontal
@@ -222,7 +258,7 @@ namespace TicTacToe_SK2
             if (ButtonComparison(a1, b2, c3) || ButtonComparison(a3, b2, c1))
                 _someoneWon = true;
 
-            if (_someoneWon) PlayerWon(b);
+            if (_someoneWon) TeamWon();
 
             foreach (Control c in Controls)
                 if (c is GroupBox)
@@ -234,14 +270,15 @@ namespace TicTacToe_SK2
                 groupBox1.Enabled = false;
         }
 
-        private void PlayerWon(Button b)
+        private void TeamWon()                          
         {
             groupBox1.Enabled = false;
-            SetText($"Player {b.Text} won.");
+            SetText($"Game over.");
         }
 
         private void quitToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            _soc.Close();
             Application.Exit();
         }
 
@@ -265,7 +302,7 @@ namespace TicTacToe_SK2
             SetText("New game started");
             _someoneWon = false;
             groupBox1.Enabled = true;
-            _turn = true;
+            //_turn = true;
         }
 
         private void send_Click(object sender, EventArgs e)
@@ -286,6 +323,12 @@ namespace TicTacToe_SK2
         private void optionsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             MessageBox.Show(@"Not implemented yet.");
+        }
+
+        private void restartToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.ExecutablePath); // to start new instance of application
+            Close(); //to turn off current app
         }
     }
 }
