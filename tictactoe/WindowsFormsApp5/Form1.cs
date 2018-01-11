@@ -126,8 +126,9 @@ namespace TicTacToe_SK2
                 {
                     if (_boardRemote[i] != 'n' && (_boardRemote[i] == 'X' || _boardRemote[i] == 'O'))           //problem with ObjectDisposedException, controls doesnt refresh everytime
                     {
-                        _buttonList[i].Text = _boardRemote[i].ToString();
-                        _buttonList[i].Refresh();
+                        //_buttonList[i].Text = _boardRemote[i].ToString();
+                        //_buttonList[i].Refresh();
+                        _buttonList[i].Invoke((Action) delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
                     }
                 }
                 CheckWinner();

@@ -8,3 +8,13 @@ C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe_safecpy\WindowsFormsApp5\obj\Debug
 C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe_safecpy\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
 C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe_safecpy\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb
 C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe_safecpy\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csprojResolveAssemblyReference.cache
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe.config
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.exe
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\WindowsFormsApp5.pdb
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csprojResolveAssemblyReference.cache
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.TicTacToe.resources
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.Properties.Resources.resources
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.GenerateResource.Cache
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\TicTacToe_SK2.csproj.CoreCompileInputs.cache
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.exe
+C:\Users\felipe\Desktop\GIT\sk2_gra\tictactoe\WindowsFormsApp5\obj\Debug\WindowsFormsApp5.pdb
