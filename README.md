@@ -12,7 +12,7 @@ Komputerowa gra online - kółko i krzyżyk
 Do samodzielnej kompilacji projektu potrzebne są Visual Studio oraz kompilator g++ w wersji 5 lub wyższej.
 
 * Klient - plik .exe znajduje się w \sk2_gra\tictactoe\WindowsFormsApp5\bin\Debug\klient.exe
-* Serwer - należy użyć skryptu makefile.sh, następnie uruchomić plik poleceniem ./s
+* Serwer - należy użyć skryptu makefile.sh (chmod +x makefile.sh) , następnie uruchomić plik poleceniem ./s 
 
 ## Autorzy
 
