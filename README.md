@@ -1,6 +1,7 @@
 # Projekt zaliczeniowy z przedmiotu sieci komputerowe
 
-Komputerowa gra online - kółko i krzyżyk
+Komputerowa, drużynowa gra online - kółko i krzyżyk
+
 
 ## Powstało przy użyciu
 
