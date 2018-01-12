@@ -12,7 +12,6 @@
 #include <iostream>
 #include <map>
 #include <iterator>
-#include <vector>
 
 using namespace std;
 
@@ -27,25 +26,20 @@ struct player{
     }
     int team;
     int socket;
-    char vote[10] = "000000000";
+    char vote[11] = "nnnnnnnnnn";
 };
 
 struct game{
-    char table[10] = "000000000";
+    char table[11] = "nnnnnnnnnn";
     int red_cnt = 0;
     int blue_cnt = 0;
-    int red_player[10];
-    int blue_player[10];
-    int r_pl_voted = 0;
-    int b_pl_voted = 0;
+    struct player* red_player[10];
+    struct player* blue_player[10];
 };
 
 struct game game_01;
-map <int, struct player*> socket_to_id;
-map <int, struct player*>::iterator it;
 
-void print_player(int b){
-    player* a = socket_to_id.find(b)->second;
+void print_player(player* a){
     printf("    Team: %d\n    Socket: %d\n    Vote: %s\n---------\n", a->team, a->socket, a->vote);
 }
 
@@ -61,24 +55,7 @@ void print_game(game g){
     }
 }
 
-void update_table(int team){
-    vector<char *> votes;
-    if(team = 0){
-        for(int i = 0; i < game_01.red_cnt; i++){
-            it = socket_to_id.find(game_01.red_player[i]);
-            votes.push_back(it->second->vote);
-        }
-    }
-    if(team = 1){
-        for(int i = 0; i < game_01.blue_cnt; i++){
-            it = socket_to_id.find(game_01.blue_player[i]);
-            votes.push_back(it->second->vote);
-        }
-    }
-    for(auto i : votes){
-        cout << i << endl;
-    }
-}
+map <int, int> socket_to_id;
 
 int main (int argc, char *argv[])
 {
@@ -86,7 +63,7 @@ int main (int argc, char *argv[])
       int    listen_socekt = -1, new_sd = -1;
       int    end_server = FALSE, compress_array = FALSE;
       int    close_conn;
-      char   buffer[10] = "999999999";
+      char   buffer[11] = "nnnnnnnnnn";
       struct sockaddr_in   addr;
       int    timeout;
       struct pollfd fds[200];
@@ -189,14 +166,12 @@ int main (int argc, char *argv[])
           fds[nfds].events = POLLIN;
 
           if(game_01.red_cnt <= game_01.blue_cnt){ //Add player to smaller team
-              socket_to_id[new_sd] = new player(new_sd); //Add new player to map
-              socket_to_id.find(new_sd)->second->team = 0;//Set proper team to new player
-              game_01.red_player[game_01.red_cnt] = new_sd;
+              game_01.red_player[game_01.red_cnt] = new player(new_sd); //Update red player list
+              game_01.red_player[game_01.red_cnt]->team = 0;
               game_01.red_cnt++; //Update red player count
           } else {
-              socket_to_id[new_sd] = new player(new_sd); //Add new player to map
-              socket_to_id.find(new_sd)->second->team = 1;//Set proper team to new player
-              game_01.blue_player[game_01.blue_cnt] = new_sd;
+              game_01.blue_player[game_01.blue_cnt] = new player(new_sd);
+              game_01.blue_player[game_01.blue_cnt]->team = 1;
               game_01.blue_cnt++;
           }
           printf("Red team: %d   Blue team: %d\n", game_01.red_cnt, game_01.blue_cnt);
@@ -229,40 +204,15 @@ int main (int argc, char *argv[])
 
           len = rc;
           printf("  %d bytes received: %s\n", len, buffer);
-          auto fds_cpy = fds[i].fd;
 
-          if(!strcmp(buffer, "playerlist")){ //Return list of online players
-              for_each(socket_to_id.begin(),socket_to_id.end(), [fds_cpy](pair<int, player*> i){
-                  printf("%s\n", to_string(i.first).c_str());
-                  send(fds_cpy, to_string(i.first).c_str(), sizeof(to_string(i.first)), 0);
-              });
-              continue;
+
+          for(int j = 0; j < game_01.red_cnt; j++){
+                  copy(begin(buffer), end(buffer), begin(game_01.red_player[j]->vote));
+                  rc = send(game_01.red_player[j]->socket, game_01.red_player[j]->vote, sizeof(game_01.blue_player[j]->vote), 0);
           }
-
-          it = socket_to_id.find(fds[i].fd); //Create iterator on wanted player
-          copy(begin(buffer), end(buffer), begin(it->second->vote));
-          if(it->second->team == 0){ //Send players vote to entire team (self included)
-              for(int j = 0; j < game_01.red_cnt; j++){
-                  rc = send(game_01.red_player[j], it->second->vote, sizeof(it->second->vote), 0);
-                  game_01.r_pl_voted++;
-                  if(game_01.r_pl_voted == game_01.red_cnt){ //All red palyer voted
-                      rc = send(game_01.red_player[j], "redvoted ", sizeof("redvoted "), 0);
-                      //Call finished voting handler TODO
-                  }
-              }
-              if(game_01.r_pl_voted == game_01.red_cnt) game_01.r_pl_voted = 0;
-
-          } else {
-              for(int j = 0; j < game_01.blue_cnt; j++){
-                  rc = send(game_01.blue_player[j], it->second->vote, sizeof(it->second->vote), 0);
-                  game_01.b_pl_voted++;
-                  if(game_01.b_pl_voted == game_01.blue_cnt){ //All blue palyer voted
-                      rc = send(game_01.blue_player[j], "bluevoted", sizeof("bluevoted"), 0);
-                      //Call finished voting handler TODO
-                      game_01.b_pl_voted = 0;
-                  }
-              }
-              if(game_01.b_pl_voted == game_01.blue_cnt) game_01.b_pl_voted = 0;
+          for(int j = 0; j < game_01.blue_cnt; j++){
+                  copy(begin(buffer), end(buffer), begin(game_01.blue_player[j]->vote));
+                  rc = send(game_01.blue_player[j]->socket, game_01.blue_player[j]->vote, sizeof(game_01.blue_player[j]->vote), 0);
           }
 
           print_game(game_01);
@@ -275,13 +225,6 @@ int main (int argc, char *argv[])
           }
           fill_n(buffer, 80, 0);
 
-
-        /*******************************************************/
-        /* If the close_conn flag was turned on, we need       */
-        /* to clean up this active connection. This           */
-        /* clean up process includes removing the              */
-        /* descriptor.                                         */
-        /*******************************************************/
         if (close_conn)
         {
           close(fds[i].fd);
@@ -293,13 +236,6 @@ int main (int argc, char *argv[])
       }  /* End of existing connection is readable             */
     } /* End of loop through pollable descriptors              */
 
-    /***********************************************************/
-    /* If the compress_array flag was turned on, we need       */
-    /* to squeeze together the array and decrement the number  */
-    /* of file descriptors. We do not need to move back the    */
-    /* events and revents fields because the events will always*/
-    /* be POLLIN in this case, and revents is output.          */
-    /***********************************************************/
     if (compress_array)
     {
       compress_array = FALSE;
