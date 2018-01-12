@@ -25,7 +25,6 @@ namespace TicTacToe_SK2
         private List<Button> _buttonList;
 
         bool _waitingForVote = false;
-        bool _firstVoteReceived = false;
         bool _xStarts = true;
         //bool _turn = true;
         private char _player = 'X';
@@ -53,32 +52,34 @@ namespace TicTacToe_SK2
             ReceiveData(_soc);
         }
 
-        /*
         static bool IsSocketConnected(Socket s)
         {
             return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
         }
-        */
+        
         private void ConnectToServer()                          //todo while( notConnected) { try soc.connect() } 
         {                                                            //connect nic nie zwraca
+            const int delay = 1000 * 5;
             _ipAddr = IPAddress.Parse(_addr);
             IPEndPoint remoteEp = new IPEndPoint(_ipAddr, _port);
-            try
+            while (!IsSocketConnected(_soc))
             {
-                _soc.Connect(remoteEp);
+                try
+                {
+                    _soc.Connect(remoteEp);
+                }
+                catch (SocketException e)
+                {
+                    SetText($"failed to connect, waiting for {delay / 1000} sec...");
+                    //soc.Close();
+                    Thread.Sleep(delay);
+                }
             }
-            catch (SocketException e)
-            {
-                //MessageBox.Show(e.Message);
-                SetText("connectToServer() error");
-                //soc.Close();
-            }
-                
+            SetText("Succesfully connected.");
         }
 
         private void ReceiveData(Socket soc)
         {
-            const int delay = 1000 * 20;
             byte[] recBuffer = new byte[20];
             while (true)
             {
@@ -88,7 +89,7 @@ namespace TicTacToe_SK2
                     if (_r > 0)
                     {
                         _msgBuffer = Encoding.ASCII.GetString(recBuffer);
-                        SetText(_msgBuffer);
+                        //SetText("received: " + _msgBuffer + " " + _msgBuffer.Length + " signs" );
                         RecogniseMsg();
                     }
                 }
@@ -96,12 +97,10 @@ namespace TicTacToe_SK2
                 {
                     if (e is SocketException)
                     {
-                        SetText($"couldn't receive data. Waiting for {delay / 1000} sec.");
-                        //MessageBox.Show($"{e.Message}");
-                        Thread.Sleep(delay);
+                        ConnectToServer();
                     }
-                    else if (e is ObjectDisposedException){ }
-
+                    else if (e is ObjectDisposedException){ ConnectToServer(); }
+                    
                     //throw;                        
                 }
             }
@@ -115,21 +114,22 @@ namespace TicTacToe_SK2
                     _waitingForVote = false;
 
                 _xStarts = false;
-                _boardLocal = _boardRemote;
-                SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
-                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();  
+                for (int i = 0; i < _boardLocal.Length; i++)
+                {
+                    _boardLocal[i] = _boardRemote[i];
+                }
+
+                //SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
+                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();
                 if (_boardLocal.Length != _buttonList.Count)
-                    SetText("Wrong size of boards");
+                    SetText($"Wrong size of boards, {_boardLocal.Length} to {_buttonList.Count}");
+                    
 
                 SetText("received vote");
                 for (var i = 0; i < _buttonList.Count; i++)
                 {
-                    if (_boardRemote[i] != 'n' && (_boardRemote[i] == 'X' || _boardRemote[i] == 'O'))           //problem with ObjectDisposedException, controls doesnt refresh everytime
-                    {
-                        //_buttonList[i].Text = _boardRemote[i].ToString();
-                        //_buttonList[i].Refresh();
-                        _buttonList[i].Invoke((Action) delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
-                    }
+                    if (_boardRemote[i] == 'X' || _boardRemote[i] == 'O')
+                        _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
                 }
                 CheckWinner();
             }
@@ -151,8 +151,9 @@ namespace TicTacToe_SK2
                 }
                 else
                     SetText("error while choosing a team");
-
             }
+            else if (_msgBuffer.StartsWith("r"))
+                startNewGame();
         }
         
         private int SendData(Socket soc, string input)
@@ -206,12 +207,6 @@ namespace TicTacToe_SK2
         private void OnButtonClick(object sender, EventArgs e)
         {
             Button b = (Button)sender;
-            /*
-            if ( _mvCounter % 2 == 0 )
-            {
-                textBox1.Select();
-                return;
-            }*/
 
             if ( _xStarts && _player != 'X' )
             {
@@ -224,8 +219,6 @@ namespace TicTacToe_SK2
                 return;
             }
             _waitingForVote = true;
-
-            //var player = _turn ? 'X' : 'O';
             
             b.Text = _player.ToString();
             //var boardLocalCpy = _boardLocal;
@@ -233,8 +226,9 @@ namespace TicTacToe_SK2
             MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);  
             b.ForeColor = Color.Red;
 
-            
-            SendData(_soc, "v" + new string(_boardLocal) + _player);                              
+            string s = "v" + new string(_boardLocal) + _player;
+            SendData(_soc, s);
+            //SetText("send: " + s + " " + s.Length + " characters");
             _r = 0;
 
             CheckWinner();    
@@ -261,19 +255,20 @@ namespace TicTacToe_SK2
 
             if (_someoneWon) TeamWon();
 
-            foreach (Control c in Controls)
+            foreach (Control c in Controls)                     //przerobic na buttonList
                 if (c is GroupBox)
                     foreach (Control x in c.Controls)
                         if (x is Button && x.Text.Length == 0)      //if theres at least one button empty
                             fullBoard = false;
 
             if (fullBoard)
-                groupBox1.Enabled = false;
+                groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
+
         }
 
         private void TeamWon()                          
         {
-            groupBox1.Enabled = false;
+            groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
             SetText($"Game over.");
         }
 
@@ -289,27 +284,32 @@ namespace TicTacToe_SK2
                 "Special thanks to Jan Konczak for being a project supervisor.");
         }
 
-        private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void startNewGame()
         {
-            foreach (Control c in Controls)                 //clear the controls
-                if (c is GroupBox)
-                    foreach (Control b in c.Controls)
-                        if (b is Button) b.Text = "";
-
-            for (int i = 0; i < _boardLocal.Length; i++)    //and the local board
+            foreach (Button b in _buttonList)
+                b.Invoke((Action)delegate { b.Text = ""; });
+            for (int i = 0; i < _boardLocal.Length; i++)
+            {
                 _boardLocal[i] = 'n';
-
-            //listBox1.Items.Clear();
+                _boardRemote[i] = 'n';
+            }
+            _xStarts = true;
+            _waitingForVote = false;
+                
             SetText("New game started");
             _someoneWon = false;
-            groupBox1.Enabled = true;
-            //_turn = true;
+            groupBox1.Invoke((Action)delegate { groupBox1.Enabled = true; });
+        }
+
+        private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            startNewGame(); //send r
         }
 
         private void send_Click(object sender, EventArgs e)
         {
             if (textBox1.Text.Length == 0) return;
-            SetText($"you: {textBox1.Text}");
+            //SetText($"you: {textBox1.Text}");
             SendData(_soc, textBox1.Text);
             textBox1.Clear();
         }
@@ -330,6 +330,11 @@ namespace TicTacToe_SK2
         {
             System.Diagnostics.Process.Start(Application.ExecutablePath); // to start new instance of application
             Close(); //to turn off current app
+        }
+
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
         }
     }
 }

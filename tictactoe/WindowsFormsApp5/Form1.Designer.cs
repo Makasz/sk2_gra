@@ -36,6 +36,7 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.send = new System.Windows.Forms.Button();
@@ -49,7 +50,7 @@
             this.b3 = new System.Windows.Forms.Button();
             this.a3 = new System.Windows.Forms.Button();
             this.b2 = new System.Windows.Forms.Button();
-            this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -101,16 +102,23 @@
             // optionsToolStripMenuItem1
             // 
             this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
-            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
             this.optionsToolStripMenuItem1.Text = "Options";
             this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.optionsToolStripMenuItem1_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // restartToolStripMenuItem
+            // 
+            this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.restartToolStripMenuItem.Text = "Restart";
+            this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
             // 
             // listBox1
             // 
@@ -124,15 +132,15 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(12, 475);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(316, 20);
+            this.textBox1.Size = new System.Drawing.Size(300, 20);
             this.textBox1.TabIndex = 15;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.send_KeyPress);
             // 
             // send
             // 
-            this.send.Location = new System.Drawing.Point(334, 475);
+            this.send.Location = new System.Drawing.Point(318, 475);
             this.send.Name = "send";
-            this.send.Size = new System.Drawing.Size(75, 23);
+            this.send.Size = new System.Drawing.Size(58, 23);
             this.send.TabIndex = 16;
             this.send.Text = "Send";
             this.send.UseVisualStyleBackColor = true;
@@ -245,18 +253,22 @@
             this.b2.UseVisualStyleBackColor = true;
             this.b2.Click += new System.EventHandler(this.OnButtonClick);
             // 
-            // restartToolStripMenuItem
+            // clearButton
             // 
-            this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.restartToolStripMenuItem.Text = "Restart";
-            this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
+            this.clearButton.Location = new System.Drawing.Point(382, 475);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(27, 23);
+            this.clearButton.TabIndex = 18;
+            this.clearButton.Text = "C";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(428, 504);
+            this.Controls.Add(this.clearButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.send);
             this.Controls.Add(this.textBox1);
@@ -298,6 +310,7 @@
         private System.Windows.Forms.Button a3;
         private System.Windows.Forms.Button b2;
         private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 
