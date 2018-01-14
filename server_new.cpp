@@ -13,30 +13,65 @@
 #include <map>
 #include <iterator>
 #include <vector>
+
 #define SERVER_PORT  12345
 
 #define TRUE             1
 #define FALSE            0
 
-
 using namespace std;
 map<int, string> red_sd;
 map<int, string> blue_sd;
 
-string table = "vnnnnnnnnnN";
-
+string table = "nnnnnnnnn";
 string msg;
 
+int red_voted = 0, blue_voted = 0;
+
 void sendVote(int team){
+  char buff[12];
     if(team){ //Send vote to Red Team
         for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
-            table[10] = 'O';
+            sprintf(buff, "v%sO", table.c_str());
             send(it->first, table.c_str(), 11, 0);
         }
-    } else {
+    } else { //Send vote to Blue Team
             for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
-            table[10] = 'X';
+            sprintf(buff, "v%sX", table.c_str());
             send(it->first, table.c_str(), 11, 0);
+        }
+    }
+}
+
+void decideVote(int team){
+  int max_cnt = 0 , max_cnt_id, tmp_cnt = 0;
+      if(team == 0){ //Choose most common vote in Red Team
+        for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+          for(map<int, string>::iterator it2 = red_sd.begin(); it2 != red_sd.end(); it2++){
+            if(it->second.compare(it2->second) == 0) 
+              tmp_cnt++;
+            if(tmp_cnt > max_cnt){
+              max_cnt = tmp_cnt;
+              max_cnt_id = it->first;
+              table = it->second;
+            }
+            printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+            sendVote(0);
+          }
+        }
+    } else { //Choose most common vote in Blue Team
+        for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+          for(map<int, string>::iterator it2 = blue_sd.begin(); it2 != blue_sd.end(); it2++){
+            if(it->second.compare(it2->second) == 0) 
+              tmp_cnt++;
+            if(tmp_cnt > max_cnt){
+              max_cnt = tmp_cnt;
+              max_cnt_id = it->first;
+              table = it->second;
+            }
+            printf("Most common blue vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+            sendVote(1);
+          }
         }
     }
 }
@@ -46,15 +81,22 @@ void setVote(int sd, char buf[11]){
         red_sd.at(sd) = string(buf, 11);
         printf("\033[1;31mRed player\033[0m %d voted for: %s\n", sd, red_sd.at(sd).c_str() );
         table = red_sd.at(sd);
-
-        sendVote(0);
+        red_voted++;
+        if(red_voted == (int)red_sd.size()){
+          decideVote(0);
+          red_voted = 0;
+        }
+        
     }
     if(blue_sd.count(sd) > 0){
         blue_sd.at(sd) = string(buf, 11);
         printf("\033[1;34mBlue player\033[0m %d voted for: %s\n", sd, blue_sd.at(sd).c_str() );
         table = blue_sd.at(sd);
-
-        sendVote(1);
+        blue_voted++;
+        if(blue_voted == (int)blue_sd.size()){
+          decideVote(1);
+          blue_voted = 0;
+        }
     }
 }
 
@@ -77,8 +119,7 @@ int main (int argc, char *argv[])
     exit(-1);
   }
 
-  rc = setsockopt(listen_sd, SOL_SOCKET,  SO_REUSEADDR,
-                  (char *)&on, sizeof(on));
+  rc = setsockopt(listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
   if (rc < 0)
   {
     perror("setsockopt() failed");
@@ -177,6 +218,14 @@ int main (int argc, char *argv[])
           if(red_sd.size() <= blue_sd.size()){
 			      int r = 0;
             red_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
+<<<<<<< HEAD
+            send(new_sd, "tX", 3, 0);
+            printf("New\033[1;31m red player\033[0m! \n");
+          } else {
+            blue_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
+            send(new_sd, "tO", 3, 0);
+            printf("New\033[1;34m blue player\033[0;m! \n");
+=======
 			      r = send(fds[i].fd, "tXnnnnnnnnn", 12, 0);
             if (r != -1)
 				      printf("New\033[1;31m red player\033[0m! \n");
@@ -191,6 +240,7 @@ int main (int argc, char *argv[])
 				      printf("New\033[1;34m blue player\033[0;m! \n");
 			      else
 				      printf("couldnt assign player to a team \n");
+>>>>>>> 7a0255debc7c6c7471922f56f7700659b28fa528
           }
 
           nfds++;
