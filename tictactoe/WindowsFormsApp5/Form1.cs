@@ -100,7 +100,8 @@ namespace TicTacToe_SK2
                     if (_r > 0)
                     {
                         _msgBuffer = Encoding.ASCII.GetString(recBuffer);
-                        SetText("rec: " + _msgBuffer + ", " + _msgBuffer.Length + " signs" );
+                        SetText("rec:" + _msgBuffer.Length);
+                        SetText(_msgBuffer);
                         RecogniseMsg();
                     }
                 }
@@ -125,31 +126,28 @@ namespace TicTacToe_SK2
                     _waitingForVote = false;
 
                 _xStarts = false;
+                
+
+                //SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
+                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();
                 for (int i = 0; i < _boardLocal.Length; i++)
                 {
                     _boardLocal[i] = _boardRemote[i];
                 }
-
-                //SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
-                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();                    
-
-                SetText("received vote");
+                //SetText("received vote");
                 for (var i = 0; i < _buttonList.Count; i++)
                 {
                     if (_boardRemote[i] == 'X' || _boardRemote[i] == 'O')
                         _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
                     else if (_boardRemote[i] == 'n')
                         _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = ""; });
-
                 }
                 CheckWinner();
             }
-
             else if (_msgBuffer.StartsWith("m"))
             {
                 SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
             }
-
             else if (_msgBuffer.StartsWith("t"))               //nadawanie teamu
             {
                 if (_msgBuffer[1].ToString() == "X")
