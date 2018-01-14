@@ -34,13 +34,13 @@ void playerDisconnected(int &sd){
   if(red_sd.count(sd) > 0){
     printf("Removing player from Red Team...\n");
     red_sd.erase(sd);
-    printf("  Size of Red Team: %d\n", red_sd.size());
+    printf("  Size of Red Team: %d\n", (int)red_sd.size());
 
   }
   if(blue_sd.count(sd) > 0){
     printf("Removing player from Blue Team...\n");
     blue_sd.erase(sd);
-    printf("  Size of Blue Team: %d\n", blue_sd.size());
+    printf("  Size of Blue Team: %d\n", (int)blue_sd.size());
   }
   sd = -1;
 }
@@ -72,7 +72,7 @@ void sendVote(int team){
 }
 
 void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
-  int max_cnt = 0 , max_cnt_id, tmp_cnt = 0;
+  int max_cnt = 0, tmp_cnt = 0;
     if(team == 0){ 
       for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
         for(map<int, string>::iterator it2 = red_sd.begin(); it2 != red_sd.end(); it2++){
@@ -80,12 +80,11 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
             tmp_cnt++;
           if(tmp_cnt > max_cnt){
             max_cnt = tmp_cnt;
-            max_cnt_id = it->first;
             table = it->second;
           }
         }
       }
-      printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+     // printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
       sendVote(0); 
   } else { //Choose most common vote in Blue Team
       for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
@@ -94,12 +93,11 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
             tmp_cnt++;
           if(tmp_cnt > max_cnt){
             max_cnt = tmp_cnt;
-            max_cnt_id = it->first;
             table = it->second;
           }
         }
       }
-      printf("Most common blue vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+      //printf("Most common blue vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
       sendVote(1);
     }
 }
@@ -127,12 +125,24 @@ void setVote(int sd, char buf[11]){
   }
 }
 
+void restartGame(){
+  table = "nnnnnnnnn";
+  char buff[12];
+  for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+    sprintf(buff, "r%sX", table.c_str());
+    send(it->first, buff, 12, 0);
+  }
+  for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+    sprintf(buff, "r%sO", table.c_str());
+    send(it->first, buff, 12, 0);
+  }
+}
+
 int main (int argc, char *argv[])
 {
   int    len, rc, on = 1;
   int    listen_sd = -1, new_sd = -1;
   int    end_server = FALSE, compress_array = FALSE;
-  int    close_conn;
   char   buffer[11];
   struct sockaddr_in   addr;
   int    timeout;
@@ -260,14 +270,14 @@ int main (int argc, char *argv[])
       else
       {
         printf("  Descriptor %d is readable\n", fds[i].fd);
-        close_conn = FALSE;
+        // close_conn = FALSE;
           rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
           if (rc < 0)
           {
             if (errno != EWOULDBLOCK)
             {
               perror("  recv() failed");
-              close_conn = TRUE;
+              // close_conn = TRUE;
             }
             break;
           }
@@ -291,15 +301,18 @@ int main (int argc, char *argv[])
           }
           else if(msg.find("m") != string::npos){
               printf("Player %d sent message: %s\n",fds[i].fd, buffer);
+          } else if(msg.find("r") != string::npos){
+              printf("Restarting game!");
+              restartGame();
           }
-          else{
+          else {
               printf("Player %d sent unrecognized string: %s\n",fds[i].fd, buffer);
           }
 
           if (rc < 0)
           {
             perror("  send() failed");
-            close_conn = TRUE;
+            // close_conn = TRUE;
             break;
           }
 
