@@ -26,7 +26,6 @@ namespace TicTacToe_SK2
 
         bool _waitingForVote = false;
         bool _xStarts = true;
-        //bool _turn = true;
         private char _player = 'X';
         bool _someoneWon = false;
         IPAddress _ipAddr;
@@ -57,8 +56,8 @@ namespace TicTacToe_SK2
             return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
         }
         
-        private void ConnectToServer()                          //todo while( notConnected) { try soc.connect() } 
-        {                                                            //connect nic nie zwraca
+        private void ConnectToServer()                         
+        {                                                         
             const int delay = 1000 * 5;
             _ipAddr = IPAddress.Parse(_addr);
             IPEndPoint remoteEp = new IPEndPoint(_ipAddr, _port);
@@ -68,7 +67,7 @@ namespace TicTacToe_SK2
                 {
                     _soc.Connect(remoteEp);
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     SetText($"failed to connect, waiting for {delay / 1000} sec...");
                     //soc.Close();
@@ -120,10 +119,7 @@ namespace TicTacToe_SK2
                 }
 
                 //SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
-                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();
-                if (_boardLocal.Length != _buttonList.Count)
-                    SetText($"Wrong size of boards, {_boardLocal.Length} to {_buttonList.Count}");
-                    
+                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();                    
 
                 SetText("received vote");
                 for (var i = 0; i < _buttonList.Count; i++)
@@ -144,16 +140,20 @@ namespace TicTacToe_SK2
                 if (_msgBuffer[1].ToString() == "X")
                 {
                     _player = 'X';
+                    SetText("Joined team: X");
+                    teamLabel.Invoke((Action)delegate { teamLabel.Text = "X"; });
                 }
                 else if (_msgBuffer[1].ToString() == "O")
                 {
                     _player = 'O';
+                    SetText("Joined team: O");
+                    teamLabel.Invoke((Action)delegate { teamLabel.Text = "O"; });
                 }
                 else
                     SetText("error while choosing a team");
             }
             else if (_msgBuffer.StartsWith("r"))
-                startNewGame();
+                StartNewGame();
         }
         
         private int SendData(Socket soc, string input)
@@ -221,18 +221,14 @@ namespace TicTacToe_SK2
             _waitingForVote = true;
             
             b.Text = _player.ToString();
-            //var boardLocalCpy = _boardLocal;
-
             MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);  
-            b.ForeColor = Color.Red;
+            b.ForeColor = Color.Red;                // do dopracowania 
 
             string s = "v" + new string(_boardLocal) + _player;
             SendData(_soc, s);
-            //SetText("send: " + s + " " + s.Length + " characters");
             _r = 0;
 
             CheckWinner();    
-            //_turn = !_turn;
             textBox1.Select();
         }
         private bool ButtonComparison(Button b1, Button b2, Button b3)
@@ -255,14 +251,16 @@ namespace TicTacToe_SK2
 
             if (_someoneWon) TeamWon();
 
-            foreach (Control c in Controls)                     //przerobic na buttonList
-                if (c is GroupBox)
-                    foreach (Control x in c.Controls)
-                        if (x is Button && x.Text.Length == 0)      //if theres at least one button empty
-                            fullBoard = false;
+            foreach (Button b in _buttonList)
+                if (b.Text.Length == 0)
+                    fullBoard = false;
 
             if (fullBoard)
+            {
                 groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
+                SetText("Draw!");
+            }
+                
 
         }
 
@@ -284,7 +282,7 @@ namespace TicTacToe_SK2
                 "Special thanks to Jan Konczak for being a project supervisor.");
         }
 
-        private void startNewGame()
+        private void StartNewGame()
         {
             foreach (Button b in _buttonList)
                 b.Invoke((Action)delegate { b.Text = ""; });
@@ -301,12 +299,12 @@ namespace TicTacToe_SK2
             groupBox1.Invoke((Action)delegate { groupBox1.Enabled = true; });
         }
 
-        private void newGameToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void NewGameToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            startNewGame(); //send r
+            SendData(_soc, "r");
         }
 
-        private void send_Click(object sender, EventArgs e)
+        private void Send_Click(object sender, EventArgs e)
         {
             if (textBox1.Text.Length == 0) return;
             //SetText($"you: {textBox1.Text}");
@@ -314,25 +312,25 @@ namespace TicTacToe_SK2
             textBox1.Clear();
         }
 
-        private void send_KeyPress(object sender, KeyPressEventArgs e)
+        private void Send_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar != (char) 13) return;
-            send_Click(sender, e);
+            Send_Click(sender, e);
             e.Handled = true;       //żeby nie pikało
         }
 
-        private void optionsToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void OptionsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             MessageBox.Show(@"Not implemented yet.");
         }
 
-        private void restartToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RestartToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(Application.ExecutablePath); // to start new instance of application
             Close(); //to turn off current app
         }
 
-        private void clearButton_Click(object sender, EventArgs e)
+        private void ClearButton_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
         }

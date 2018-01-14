@@ -51,6 +51,8 @@
             this.a3 = new System.Windows.Forms.Button();
             this.b2 = new System.Windows.Forms.Button();
             this.clearButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.teamLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -80,7 +82,7 @@
             this.newGameToolStripMenuItem1.Name = "newGameToolStripMenuItem1";
             this.newGameToolStripMenuItem1.Size = new System.Drawing.Size(131, 22);
             this.newGameToolStripMenuItem1.Text = "New game";
-            this.newGameToolStripMenuItem1.Click += new System.EventHandler(this.newGameToolStripMenuItem1_Click);
+            this.newGameToolStripMenuItem1.Click += new System.EventHandler(this.NewGameToolStripMenuItem1_Click);
             // 
             // quitToolStripMenuItem1
             // 
@@ -104,7 +106,7 @@
             this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
             this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
             this.optionsToolStripMenuItem1.Text = "Options";
-            this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.optionsToolStripMenuItem1_Click);
+            this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.OptionsToolStripMenuItem1_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -118,14 +120,14 @@
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
             this.restartToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.restartToolStripMenuItem.Text = "Restart";
-            this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
+            this.restartToolStripMenuItem.Click += new System.EventHandler(this.RestartToolStripMenuItem_Click);
             // 
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(12, 374);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(397, 95);
+            this.listBox1.Size = new System.Drawing.Size(300, 95);
             this.listBox1.TabIndex = 14;
             // 
             // textBox1
@@ -134,7 +136,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(300, 20);
             this.textBox1.TabIndex = 15;
-            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.send_KeyPress);
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Send_KeyPress);
             // 
             // send
             // 
@@ -144,7 +146,7 @@
             this.send.TabIndex = 16;
             this.send.Text = "Send";
             this.send.UseVisualStyleBackColor = true;
-            this.send.Click += new System.EventHandler(this.send_Click);
+            this.send.Click += new System.EventHandler(this.Send_Click);
             // 
             // groupBox1
             // 
@@ -261,13 +263,34 @@
             this.clearButton.TabIndex = 18;
             this.clearButton.Text = "C";
             this.clearButton.UseVisualStyleBackColor = true;
-            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
+            this.clearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(342, 385);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(58, 13);
+            this.label1.TabIndex = 19;
+            this.label1.Text = "Your team:";
+            // 
+            // teamLabel
+            // 
+            this.teamLabel.AutoSize = true;
+            this.teamLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.teamLabel.Location = new System.Drawing.Point(340, 398);
+            this.teamLabel.Name = "teamLabel";
+            this.teamLabel.Size = new System.Drawing.Size(57, 55);
+            this.teamLabel.TabIndex = 20;
+            this.teamLabel.Text = "X";
             // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(428, 504);
+            this.Controls.Add(this.teamLabel);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.clearButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.send);
@@ -311,6 +334,8 @@
         private System.Windows.Forms.Button b2;
         private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
         private System.Windows.Forms.Button clearButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label teamLabel;
     }
 }
 
