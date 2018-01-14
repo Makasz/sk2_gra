@@ -175,13 +175,22 @@ int main (int argc, char *argv[])
 
           //Add new player to team and send him his team (not sure if working)
           if(red_sd.size() <= blue_sd.size()){
+			      int r = 0;
             red_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
-            send(fds[i].fd, "tXnnnnnnnnn", 12, 0);
-            printf("New\033[1;31m red player\033[0m! \n");
-          } else {
+			      r = send(fds[i].fd, "tXnnnnnnnnn", 12, 0);
+            if (r != -1)
+				      printf("New\033[1;31m red player\033[0m! \n");
+			      else
+				      printf("couldnt assign player to a team \n");
+          } 
+          else {
+            int r = 0;
             blue_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
-            send(fds[i].fd, "tOnnnnnnnnn", 12, 0);
-            printf("New\033[1;34m blue player\033[0;m! \n");
+			      r = send(fds[i].fd, "tOnnnnnnnnn", 12, 0);
+            if (r != -1)
+				      printf("New\033[1;34m blue player\033[0;m! \n");
+			      else
+				      printf("couldnt assign player to a team \n");
           }
 
           nfds++;

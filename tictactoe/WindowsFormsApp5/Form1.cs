@@ -99,7 +99,7 @@ namespace TicTacToe_SK2
                     if (_r > 0)
                     {
                         _msgBuffer = Encoding.ASCII.GetString(recBuffer);
-                        //SetText("received: " + _msgBuffer + " " + _msgBuffer.Length + " signs" );
+                        SetText("rec: " + _msgBuffer + ", " + _msgBuffer.Length + " signs" );
                         RecogniseMsg();
                     }
                 }
