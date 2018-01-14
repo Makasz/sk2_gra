@@ -47,16 +47,27 @@ void playerDisconnected(int &sd){
 
 void sendVote(int team){
   char buff[12];
-    if(team){ //Send vote to Red Team
+    // if(team){ //Send vote to Red Team
+    //     for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+    //       sprintf(buff, "v%sO", table.c_str());
+    //       send(it->first, table.c_str(), 11, 0);
+    //     }
+    // } else { //Send vote to Blue Team
+    //     for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+    //       sprintf(buff, "v%sX", table.c_str());
+    //       send(it->first, table.c_str(), 11, 0);
+    //     }
+    // }
+    //Send vote to Red Team
         for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
           sprintf(buff, "v%sO", table.c_str());
           send(it->first, table.c_str(), 11, 0);
         }
-    } else { //Send vote to Blue Team
+    //Send vote to Blue Team
         for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
           sprintf(buff, "v%sX", table.c_str());
           send(it->first, table.c_str(), 11, 0);
-        }
+        
     }
 }
 
@@ -96,7 +107,7 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
 void setVote(int sd, char buf[11]){
   if(red_sd.count(sd) > 0){
     red_sd.at(sd) = string(buf, 11);
-    printf("\033[1;31mRed player\033[0m %d voted for: %s\n", sd, red_sd.at(sd).c_str() );
+    //printf("\033[1;31m[VOTE]\033[0;31mRed player %d voted for: %s\n", sd, red_sd.at(sd).c_str() );
     table = red_sd.at(sd);
     red_voted++;
     if(red_voted >= (int)red_sd.size()){
@@ -106,7 +117,7 @@ void setVote(int sd, char buf[11]){
   }
   if(blue_sd.count(sd) > 0){
     blue_sd.at(sd) = string(buf, 11);
-    printf("\033[1;34mBlue player\033[0m %d voted for: %s\n", sd, blue_sd.at(sd).c_str() );
+    //printf("\033[1;31m[VOTE]\033[0;31Blue player %d voted for: %s\n", sd, blue_sd.at(sd).c_str() );
     table = blue_sd.at(sd);
     blue_voted++;
     if(blue_voted >= (int)blue_sd.size()){
@@ -233,11 +244,11 @@ int main (int argc, char *argv[])
           if(red_sd.size() <= blue_sd.size()){
             red_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
             send(new_sd, "tX", 3, 0);
-            printf("New\033[1;31m red player\033[0m! \n");
+            printf("New red player! \n");
           } else {
             blue_sd.insert(pair<int, string>(new_sd, "nnnnnnnnn"));
             send(new_sd, "tO", 3, 0);
-            printf("New\033[1;34m blue player\033[0;m! \n");
+            printf("New Blue player! \n");
           }
 
           nfds++;
