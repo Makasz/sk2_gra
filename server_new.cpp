@@ -83,10 +83,10 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
             max_cnt_id = it->first;
             table = it->second;
           }
-          printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
-          sendVote(0);
         }
       }
+      printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+      sendVote(0); 
   } else { //Choose most common vote in Blue Team
       for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
         for(map<int, string>::iterator it2 = blue_sd.begin(); it2 != blue_sd.end(); it2++){
@@ -97,10 +97,10 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
             max_cnt_id = it->first;
             table = it->second;
           }
-          printf("Most common blue vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
-          sendVote(1);
         }
       }
+      printf("Most common blue vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
+      sendVote(1);
     }
 }
 
@@ -296,24 +296,16 @@ int main (int argc, char *argv[])
               printf("Player %d sent unrecognized string: %s\n",fds[i].fd, buffer);
           }
 
-          //rc = send(fds[i].fd, buffer, len, 0);
           if (rc < 0)
           {
             perror("  send() failed");
             close_conn = TRUE;
             break;
           }
-        //conn:
-        //if (close_conn)
-        // {
-        //   close(fds[i].fd);
-        //   fds[i].fd = -1;
-        //   compress_array = TRUE;
-        // }
 
 
-      }  /* End of existing connection is readable             */
-    } /* End of loop through pollable descriptors              */
+      }  // End of existing connection is readable
+    } // End of loop through pollable descriptors
     if (compress_array)
     {
       compress_array = FALSE;
