@@ -7,6 +7,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Media;
+using System.IO;
+using System.Reflection;
 
 /* todo
     - opcje?
@@ -33,15 +35,17 @@ namespace TicTacToe_SK2
         readonly Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private int _r;
         private string _msgBuffer;
-        
+
+        SoundPlayer sp;
+
+
         delegate void StringArgReturningVoidDelegate(string text);
 
         public TicTacToe()
         {
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             InitializeComponent();
-            SoundPlayer sp = new SoundPlayer(@"soundtrack.wav");
-            //sp.SoundLocation = ;
+            sp = new SoundPlayer("soundtrack.wav");
             try {
                 sp.Load();
                 sp.Play(); }
@@ -336,11 +340,6 @@ namespace TicTacToe_SK2
             e.Handled = true;       //żeby nie pikało
         }
 
-        private void OptionsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(@"Not implemented yet.");
-        }
-
         private void RestartToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(Application.ExecutablePath); // to start new instance of application
@@ -350,6 +349,21 @@ namespace TicTacToe_SK2
         private void ClearButton_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
+        }
+
+        private void muteSoundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (muteSoundToolStripMenuItem.Text == "Mute sound")
+            {
+                sp.Stop();
+                muteSoundToolStripMenuItem.Text = "Play sound";
+            }
+            else
+            {
+                sp.PlayLooping();
+                muteSoundToolStripMenuItem.Text = "Mute sound";
+            }          
+           
         }
     }
 }

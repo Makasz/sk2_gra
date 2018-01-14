@@ -34,7 +34,6 @@
             this.newGameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.quitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listBox1 = new System.Windows.Forms.ListBox();
@@ -53,6 +52,7 @@
             this.clearButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.teamLabel = new System.Windows.Forms.Label();
+            this.muteSoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -94,31 +94,24 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.optionsToolStripMenuItem1,
             this.aboutToolStripMenuItem,
+            this.muteSoundToolStripMenuItem,
             this.restartToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.optionsToolStripMenuItem.Text = "More";
             // 
-            // optionsToolStripMenuItem1
-            // 
-            this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
-            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
-            this.optionsToolStripMenuItem1.Text = "Options";
-            this.optionsToolStripMenuItem1.Click += new System.EventHandler(this.OptionsToolStripMenuItem1_Click);
-            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // restartToolStripMenuItem
             // 
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.restartToolStripMenuItem.Text = "Restart";
             this.restartToolStripMenuItem.Click += new System.EventHandler(this.RestartToolStripMenuItem_Click);
             // 
@@ -284,6 +277,13 @@
             this.teamLabel.TabIndex = 20;
             this.teamLabel.Text = "X";
             // 
+            // muteSoundToolStripMenuItem
+            // 
+            this.muteSoundToolStripMenuItem.Name = "muteSoundToolStripMenuItem";
+            this.muteSoundToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.muteSoundToolStripMenuItem.Text = "Mute sound";
+            this.muteSoundToolStripMenuItem.Click += new System.EventHandler(this.muteSoundToolStripMenuItem_Click);
+            // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -317,7 +317,6 @@
         private System.Windows.Forms.ToolStripMenuItem newGameToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.TextBox textBox1;
@@ -336,6 +335,7 @@
         private System.Windows.Forms.Button clearButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label teamLabel;
+        private System.Windows.Forms.ToolStripMenuItem muteSoundToolStripMenuItem;
     }
 }
 
