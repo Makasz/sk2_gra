@@ -8,12 +8,6 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using WMPLib;
 
-
-/* todo
-    - opcje?
-*/
-
-
 namespace TicTacToe_SK2
 {
     public partial class TicTacToe : Form
@@ -144,6 +138,9 @@ namespace TicTacToe_SK2
                 {
                     if (_boardRemote[i] == 'X' || _boardRemote[i] == 'O')
                         _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
+                    else if (_boardRemote[i] == 'n')
+                        _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = ""; });
+
                 }
                 CheckWinner();
             }
@@ -246,7 +243,7 @@ namespace TicTacToe_SK2
             SendData(_soc, s);
             _r = 0;
 
-            CheckWinner();    
+            //CheckWinner();    
             textBox1.Select();
         }
         private bool ButtonComparison(Button b1, Button b2, Button b3)
@@ -278,8 +275,6 @@ namespace TicTacToe_SK2
                 groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
                 SetText("Draw!");
             }
-                
-
         }
 
         private void TeamWon()                          
