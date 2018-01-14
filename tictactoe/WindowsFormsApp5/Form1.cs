@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Media;
 
 /* todo
     - opcje?
@@ -39,6 +40,12 @@ namespace TicTacToe_SK2
         {
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             InitializeComponent();
+            SoundPlayer sp = new SoundPlayer(@"soundtrack.wav");
+            //sp.SoundLocation = ;
+            try {
+                sp.Load();
+                sp.Play(); }
+            catch (Exception e) { SetText(e.Message + "couldn't load sound file"); };
             _buttonList = new List<Button> { a1, a2, a3, b1, b2, b3, c1, c2, c3 };
 
             textBox1.Select();
