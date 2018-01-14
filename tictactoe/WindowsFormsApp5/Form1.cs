@@ -32,11 +32,12 @@ namespace TicTacToe_SK2
         readonly Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private int _r;
         private string _msgBuffer;
-
+        
         delegate void StringArgReturningVoidDelegate(string text);
 
         public TicTacToe()
         {
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             InitializeComponent();
             _buttonList = new List<Button> { a1, a2, a3, b1, b2, b3, c1, c2, c3 };
 
@@ -45,8 +46,18 @@ namespace TicTacToe_SK2
             newThread.Start();
         }
 
+        private void OnProcessExit(object sender, EventArgs e)
+        {
+            //todo send exit msg to the server
+            SetText("Exiting program...");
+            //SendData(_soc, "L");
+            _soc.Close();
+            Application.Exit();
+        }
+
         private void ExecuteInForeground()
         {
+            //AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             ConnectToServer();
             ReceiveData(_soc);
         }
@@ -88,7 +99,7 @@ namespace TicTacToe_SK2
                     if (_r > 0)
                     {
                         _msgBuffer = Encoding.ASCII.GetString(recBuffer);
-                        //SetText("received: " + _msgBuffer + " " + _msgBuffer.Length + " signs" );
+                        SetText("rec: " + _msgBuffer + ", " + _msgBuffer.Length + " signs" );
                         RecogniseMsg();
                     }
                 }
@@ -272,8 +283,7 @@ namespace TicTacToe_SK2
 
         private void quitToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            _soc.Close();
-            Application.Exit();
+            OnProcessExit(sender, e);
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
