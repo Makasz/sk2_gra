@@ -10,6 +10,8 @@
 - [ ] klient
 - [ ] server
 
+---------------------------------------------------------------------------------
+
 # Projekt zaliczeniowy z przedmiotu sieci komputerowe
 
 Komputerowa, drużynowa gra online - kółko i krzyżyk
