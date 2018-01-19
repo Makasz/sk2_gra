@@ -7,13 +7,12 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using WMPLib;
-using System.Timers;
 
 /*  TODO
 - dodać opcje startu gry:
 
 - obsłużyć sytuacje gdy jeden gracz nie odda głosu (dodać timer - po upływie czasu zaznaczenie pierwszej możliwej opcji)
-po otrzymaniu glosu odliczamy 15 sec w dol
+
 - dodać funkcję wysyłania obecnego stanu gry do gracza, który dołącza do rozgrywki po jej rozpoczęciu:
 chyba nie wymaga żadnych zmian w kliencie
      */
@@ -48,12 +47,22 @@ namespace TicTacToe_SK2
         {
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             InitializeComponent();
+            InitializeCombobox();
             PlayFile("soundtrack.mp3");
             _buttonList = new List<Button> { a1, a2, a3, b1, b2, b3, c1, c2, c3 };
-
-            textBox1.Select();
             Thread newThread = new Thread(ExecuteInForeground) { IsBackground = true };
             newThread.Start();
+        }
+
+        private void InitializeCombobox()
+        {
+            comboBox1.Items.Add("Greetings.");
+            comboBox1.Items.Add("Well played.");
+            comboBox1.Items.Add("Oops.");
+            comboBox1.Items.Add("Thank you.");            
+            comboBox1.Items.Add("Thanks.");
+            comboBox1.Items.Add("Sorry.");
+            comboBox1.SelectedIndex = 0;
         }
 
         private void OnProcessExit(object sender, EventArgs e)
@@ -78,7 +87,11 @@ namespace TicTacToe_SK2
             {
                 return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
             }
-            catch (SocketException) { return false; }
+            catch (Exception e) {
+                if (e is SocketException || e is ObjectDisposedException)
+                    return false;
+                throw;
+            }
         }
         
         private void ConnectToServer()                         
@@ -97,6 +110,12 @@ namespace TicTacToe_SK2
                     SetText($"failed to connect, waiting for {delay / 1000} sec...");
                     //soc.Close();
                     Thread.Sleep(delay);
+                }
+                catch (InvalidOperationException)
+                {
+                    SetText("Server turned off. The program will now exit.");
+                    Thread.Sleep(3000);
+                    Application.Exit();
                 }
             }
             SetText("Succesfully connected.");
@@ -120,75 +139,65 @@ namespace TicTacToe_SK2
                 }
                 catch (Exception e)
                 {
-                    if (e is SocketException)
-                    {
+                    if (e is SocketException || e is ObjectDisposedException)
                         ConnectToServer();
-                    }
-                    else if (e is ObjectDisposedException){ ConnectToServer(); }
-                    
-                    //throw;                        
                 }
             }
         }
 
         private void RecogniseMsg()
         {
-            if (_msgBuffer.StartsWith("v"))        //received vote
+            switch (_msgBuffer[0])
             {
-                _xStarts = false;
-                
+                case 'v':
+                    {
+                        _xStarts = false;
+                        _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();
+                        for (int i = 0; i < _boardLocal.Length; i++)
+                        {
+                            _boardLocal[i] = _boardRemote[i];
+                        }
+                        for (var i = 0; i < _buttonList.Count; i++)
+                        {
+                            if (_boardRemote[i] == 'X' || _boardRemote[i] == 'O')
+                                _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
+                            else if (_boardRemote[i] == 'n')
+                                _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = ""; });
+                        }
+                        CheckWinner();
 
-                //SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
-                _boardRemote = _msgBuffer.Substring(1, _msgBuffer.Length - 2).ToCharArray();
-                for (int i = 0; i < _boardLocal.Length; i++)
-                {
-                    _boardLocal[i] = _boardRemote[i];
-                }
-                //SetText("received vote");
-                for (var i = 0; i < _buttonList.Count; i++)
-                {
-                    if (_boardRemote[i] == 'X' || _boardRemote[i] == 'O')
-                        _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = _boardRemote[i].ToString(); });
-                    else if (_boardRemote[i] == 'n')
-                        _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = ""; });
-                }
-                CheckWinner();
-                
-
-                if (_msgBuffer[10] != _player)
-                {
-                    _timeLeft = 15;
-                    timerLabel.Invoke((Action)delegate { timerLabel.Text = _timeLeft.ToString() + " sec"; });
-                    timerLabel.Invoke((Action)delegate { timer1.Start(); });
-                    _waitingForVote = false;
-                }
-                    
-                
-
+                        if (_msgBuffer[10] != _player)
+                        {
+                            _timeLeft = 15;
+                            timerLabel.Invoke((Action)delegate { timerLabel.Text = _timeLeft.ToString() + " sec"; });
+                            timerLabel.Invoke((Action)delegate { timer1.Start(); });
+                            _waitingForVote = false;
+                        }
+                        break;
+                    }
+                case 't':
+                    {
+                        _player = _msgBuffer[1];
+                        if (_player != 'X' && _player != 'O')
+                        {
+                            SetText("error while choosing a team");
+                            break;
+                        }                            
+                        SetText($"Joined team: {_player}");
+                        teamLabel.Invoke((Action)delegate { teamLabel.Text = _player.ToString(); });
+                        break;
+                    }
+                case 'm':
+                    {
+                        SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 2));
+                        break;
+                    }
+                case 'r':
+                    {
+                        StartNewGame();
+                        break;
+                    }
             }
-            else if (_msgBuffer.StartsWith("m"))
-            {
-                SetText(_msgBuffer.Substring(1, _msgBuffer.Length - 1));
-            }
-            else if (_msgBuffer.StartsWith("t"))               //nadawanie teamu
-            {
-                if (_msgBuffer[1].ToString() == "X")
-                {
-                    _player = 'X';
-                    SetText("Joined team: X");
-                    teamLabel.Invoke((Action)delegate { teamLabel.Text = "X"; });
-                }
-                else if (_msgBuffer[1].ToString() == "O")
-                {
-                    _player = 'O';
-                    SetText("Joined team: O");
-                    teamLabel.Invoke((Action)delegate { teamLabel.Text = "O"; });
-                }
-                else
-                    SetText("error while choosing a team");
-            }
-            else if (_msgBuffer.StartsWith("r"))
-                StartNewGame();
         }
         
         private int SendData(Socket soc, string input)
@@ -243,16 +252,13 @@ namespace TicTacToe_SK2
         {
             Button b = (Button)sender;
 
-            if ( _xStarts && _player != 'X' )
-            {
-                textBox1.Select();
-                return;
-            }
-            if (!String.IsNullOrEmpty(b.Text) || _waitingForVote || _timeLeft == 0)
-            {
-                textBox1.Select();
-                return;
-            }
+            if ( (_xStarts && _player != 'X') || 
+                (!String.IsNullOrEmpty(b.Text) || _waitingForVote || _timeLeft == 0))
+                {
+                    send.Select();
+                    return;
+                }
+            
             _waitingForVote = true;
             
             b.Text = _player.ToString();
@@ -265,8 +271,8 @@ namespace TicTacToe_SK2
 
             timerLabel.Invoke((Action)delegate { timerLabel.Text = "opponents turn"; });
             timerLabel.Invoke((Action)delegate { timer1.Stop(); });
-            //CheckWinner();    
-            textBox1.Select();
+            send.Select();    
+
         }
         private bool ButtonComparison(Button b1, Button b2, Button b3)
         {
@@ -346,10 +352,8 @@ namespace TicTacToe_SK2
 
         private void Send_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text.Length == 0) return;
-            //SetText($"you: {textBox1.Text}");
-            SendData(_soc, textBox1.Text);
-            textBox1.Clear();
+            SendData(_soc, $"m{comboBox1.Text}");
+            send.Select();
         }
 
         private void Send_KeyPress(object sender, KeyPressEventArgs e)
@@ -372,6 +376,11 @@ namespace TicTacToe_SK2
 
         private void muteSoundToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            MuteSound();
+        }
+        
+        public void MuteSound()
+        {
             if (muteSoundToolStripMenuItem.Text == "Mute sound")
             {
                 Player.controls.pause();
@@ -381,7 +390,7 @@ namespace TicTacToe_SK2
             {
                 Player.controls.play();
                 muteSoundToolStripMenuItem.Text = "Mute sound";
-            }  
+            }
         }
 
         private void PlayFile(String url)

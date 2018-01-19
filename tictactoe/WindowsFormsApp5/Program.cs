@@ -17,7 +17,8 @@ namespace TicTacToe_SK2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TicTacToe());
+            TicTacToe app = new TicTacToe();
+            Application.Run(app);            
         }
     }
 }
