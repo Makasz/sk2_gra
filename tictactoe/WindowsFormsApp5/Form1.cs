@@ -7,6 +7,16 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using WMPLib;
+using System.Timers;
+
+/*  TODO
+- dodać opcje startu gry:
+
+- obsłużyć sytuacje gdy jeden gracz nie odda głosu (dodać timer - po upływie czasu zaznaczenie pierwszej możliwej opcji)
+po otrzymaniu glosu odliczamy 15 sec w dol
+- dodać funkcję wysyłania obecnego stanu gry do gracza, który dołącza do rozgrywki po jej rozpoczęciu:
+chyba nie wymaga żadnych zmian w kliencie
+     */
 
 namespace TicTacToe_SK2
 {
@@ -28,11 +38,10 @@ namespace TicTacToe_SK2
         readonly Socket _soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private int _r;
         private string _msgBuffer;
-
-
+        int _timeLeft = 15;
+        
         WindowsMediaPlayer Player;
-
-
+        
         delegate void StringArgReturningVoidDelegate(string text);
 
         public TicTacToe()
@@ -65,7 +74,11 @@ namespace TicTacToe_SK2
 
         static bool IsSocketConnected(Socket s)
         {
-            return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
+            try
+            {
+                return !((s.Poll(1000, SelectMode.SelectRead) && (s.Available == 0)) || !s.Connected);
+            }
+            catch (SocketException) { return false; }
         }
         
         private void ConnectToServer()                         
@@ -122,9 +135,6 @@ namespace TicTacToe_SK2
         {
             if (_msgBuffer.StartsWith("v"))        //received vote
             {
-                if (_msgBuffer[10] != _player)
-                    _waitingForVote = false;
-
                 _xStarts = false;
                 
 
@@ -143,6 +153,18 @@ namespace TicTacToe_SK2
                         _buttonList[i].Invoke((Action)delegate { _buttonList[i].Text = ""; });
                 }
                 CheckWinner();
+                
+
+                if (_msgBuffer[10] != _player)
+                {
+                    _timeLeft = 15;
+                    timerLabel.Invoke((Action)delegate { timerLabel.Text = _timeLeft.ToString() + " sec"; });
+                    timerLabel.Invoke((Action)delegate { timer1.Start(); });
+                    _waitingForVote = false;
+                }
+                    
+                
+
             }
             else if (_msgBuffer.StartsWith("m"))
             {
@@ -226,7 +248,7 @@ namespace TicTacToe_SK2
                 textBox1.Select();
                 return;
             }
-            if (!String.IsNullOrEmpty(b.Text) || _waitingForVote)
+            if (!String.IsNullOrEmpty(b.Text) || _waitingForVote || _timeLeft == 0)
             {
                 textBox1.Select();
                 return;
@@ -241,6 +263,8 @@ namespace TicTacToe_SK2
             SendData(_soc, s);
             _r = 0;
 
+            timerLabel.Invoke((Action)delegate { timerLabel.Text = "opponents turn"; });
+            timerLabel.Invoke((Action)delegate { timer1.Stop(); });
             //CheckWinner();    
             textBox1.Select();
         }
@@ -307,6 +331,12 @@ namespace TicTacToe_SK2
             SetText("New game started");
             _someoneWon = false;
             groupBox1.Invoke((Action)delegate { groupBox1.Enabled = true; });
+            timerLabel.Invoke((Action)delegate {
+                timer1.Stop();
+                _timeLeft = 15;
+                timerLabel.Text = _timeLeft.ToString();
+            });
+
         }
 
         private void NewGameToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -353,6 +383,7 @@ namespace TicTacToe_SK2
                 muteSoundToolStripMenuItem.Text = "Mute sound";
             }  
         }
+
         private void PlayFile(String url)
         {
             try
@@ -372,5 +403,20 @@ namespace TicTacToe_SK2
                 Player.controls.play();
             }
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (_timeLeft > 0)
+            {
+                _timeLeft -= 1;
+                timerLabel.Invoke((Action)delegate { timerLabel.Text = _timeLeft.ToString() + " sec"; });
+            }
+            else
+            {
+                timer1.Stop();
+                timerLabel.Invoke((Action)delegate { timerLabel.Text = "opponents turn"; });
+            }
+        }
+
     }
 }

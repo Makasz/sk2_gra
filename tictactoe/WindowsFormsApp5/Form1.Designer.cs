@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TicTacToe));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.generalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,6 +54,9 @@
             this.clearButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.teamLabel = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label2 = new System.Windows.Forms.Label();
+            this.timerLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -64,7 +68,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(428, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(423, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -125,14 +129,14 @@
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(12, 374);
+            this.listBox1.Location = new System.Drawing.Point(12, 406);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(300, 95);
             this.listBox1.TabIndex = 14;
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 475);
+            this.textBox1.Location = new System.Drawing.Point(12, 507);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(300, 20);
             this.textBox1.TabIndex = 15;
@@ -140,7 +144,7 @@
             // 
             // send
             // 
-            this.send.Location = new System.Drawing.Point(318, 475);
+            this.send.Location = new System.Drawing.Point(318, 507);
             this.send.Name = "send";
             this.send.Size = new System.Drawing.Size(58, 23);
             this.send.TabIndex = 16;
@@ -159,7 +163,7 @@
             this.groupBox1.Controls.Add(this.b3);
             this.groupBox1.Controls.Add(this.a3);
             this.groupBox1.Controls.Add(this.b2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 27);
+            this.groupBox1.Location = new System.Drawing.Point(12, 59);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(397, 341);
             this.groupBox1.TabIndex = 17;
@@ -238,7 +242,7 @@
             // a3
             // 
             this.a3.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.a3.Location = new System.Drawing.Point(250, 19);
+            this.a3.Location = new System.Drawing.Point(251, 19);
             this.a3.Name = "a3";
             this.a3.Size = new System.Drawing.Size(100, 100);
             this.a3.TabIndex = 29;
@@ -257,7 +261,7 @@
             // 
             // clearButton
             // 
-            this.clearButton.Location = new System.Drawing.Point(382, 475);
+            this.clearButton.Location = new System.Drawing.Point(382, 507);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(27, 23);
             this.clearButton.TabIndex = 18;
@@ -268,7 +272,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(342, 385);
+            this.label1.Location = new System.Drawing.Point(342, 417);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
             this.label1.TabIndex = 19;
@@ -278,17 +282,44 @@
             // 
             this.teamLabel.AutoSize = true;
             this.teamLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.teamLabel.Location = new System.Drawing.Point(340, 398);
+            this.teamLabel.Location = new System.Drawing.Point(340, 430);
             this.teamLabel.Name = "teamLabel";
             this.teamLabel.Size = new System.Drawing.Size(57, 55);
             this.teamLabel.TabIndex = 20;
             this.teamLabel.Text = "X";
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label2.Location = new System.Drawing.Point(67, 35);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(83, 20);
+            this.label2.TabIndex = 21;
+            this.label2.Text = "Time left:";
+            // 
+            // timerLabel
+            // 
+            this.timerLabel.AutoSize = true;
+            this.timerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.timerLabel.Location = new System.Drawing.Point(175, 31);
+            this.timerLabel.Name = "timerLabel";
+            this.timerLabel.Size = new System.Drawing.Size(82, 25);
+            this.timerLabel.TabIndex = 22;
+            this.timerLabel.Text = "15 sec";
+            // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(428, 504);
+            this.ClientSize = new System.Drawing.Size(423, 537);
+            this.Controls.Add(this.timerLabel);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.teamLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.clearButton);
@@ -336,6 +367,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label teamLabel;
         private System.Windows.Forms.ToolStripMenuItem muteSoundToolStripMenuItem;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label timerLabel;
     }
 }
 
