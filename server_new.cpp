@@ -140,10 +140,10 @@ void restartGame(){
 
 void sendMessage(string msg){
   for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
-    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+    send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
   for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
-    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+    send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
   printf("Forwarded message: %s\n", msg.c_str());
 }
