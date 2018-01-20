@@ -4,8 +4,8 @@
 - [ ] server
 - obsłużyć sytuacje gdy jeden gracz nie odda głosu 
 (dodać timer - po upływie czasu zaznaczenie pierwszej możliwej opcji)
-- [ ] klient
-- [ ] server
+- [x] klient
+- [x] server
 - dodać funkcję wysyłania obecnego stanu gry do gracza, który dołącza do rozgrywki po jej rozpoczęciu
 - [ ] klient
 - [ ] server

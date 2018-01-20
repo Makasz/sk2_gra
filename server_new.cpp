@@ -138,13 +138,14 @@ void restartGame(){
   }
 }
 
-void sendMessage(){
+void sendMessage(string msg){
   for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
-    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+    send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
   for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
-    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+    send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
+  printf("Forwarded message: %s\n", msg.c_str());
 }
 
 int main (int argc, char *argv[])
@@ -280,6 +281,7 @@ int main (int argc, char *argv[])
       {
         printf("  Descriptor %d is readable\n", fds[i].fd);
         // close_conn = FALSE;
+          strcpy(buffer, "           ");
           rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
           if (rc < 0)
           {
@@ -308,8 +310,8 @@ int main (int argc, char *argv[])
           if(msg.find("v") != string::npos){
               setVote(fds[i].fd, buffer);
           } else if(msg.find("m") != string::npos) {
-              printf("Player %d sent message: %s\n",fds[i].fd, buffer);
-              sendMessage();
+              printf("Player %d sent message: %s\n",fds[i].fd, msg.c_str());
+              sendMessage(msg);
           } else if(msg.find("r") != string::npos) { 
               printf("Restarting game!\n");
               restartGame();
