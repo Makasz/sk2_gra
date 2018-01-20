@@ -316,7 +316,7 @@ int main (int argc, char *argv[])
               printf("Restarting game!\n");
               restartGame();
           } else if(msg.find("e") != string::npos) {
-              printf("Player %d didn't vote!\n");
+              printf("Player %d didn't vote!\n", fds[i].fd);
           } else {
               printf("Player %d sent unrecognized string: %s\n",fds[i].fd, buffer);
           }
