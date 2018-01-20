@@ -56,12 +56,12 @@ namespace TicTacToe_SK2
 
         private void InitializeCombobox()
         {
-            comboBox1.Items.Add("Greetings.");
-            comboBox1.Items.Add("Well played.");
-            comboBox1.Items.Add("Oops.");
-            comboBox1.Items.Add("Thank you.");            
-            comboBox1.Items.Add("Thanks.");
-            comboBox1.Items.Add("Sorry.");
+            comboBox1.Items.Add("Greetings");
+            comboBox1.Items.Add("Well played");
+            comboBox1.Items.Add("Oops");
+            comboBox1.Items.Add("Thank you");            
+            comboBox1.Items.Add("Thanks");
+            comboBox1.Items.Add("Sorry");
             comboBox1.SelectedIndex = 0;
         }
 
@@ -228,7 +228,25 @@ namespace TicTacToe_SK2
                 listBox1.TopIndex = listBox1.Items.Count - 1;   //scrolls down listbox items
             }
         }
-  
+
+        private void SendTimeoutVote()
+        {
+            foreach (Button b in _buttonList)
+            {
+                if (String.IsNullOrEmpty(b.Text))
+                {
+                    b.Text = _player.ToString();
+                    MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);
+                    b.ForeColor = Color.Red;
+                    string s = "v" + new string(_boardLocal) + _player;
+                    SendData(_soc, s);
+                    return;
+                }
+                else
+                    groupBox1.Enabled = false;
+            }
+        }
+
         private void MapMovement(char starts, int ends, char[] board, char player)
         {
             switch (starts)
@@ -424,6 +442,7 @@ namespace TicTacToe_SK2
             {
                 timer1.Stop();
                 timerLabel.Invoke((Action)delegate { timerLabel.Text = "opponents turn"; });
+                SendTimeoutVote();
             }
         }
 
