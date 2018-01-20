@@ -138,6 +138,15 @@ void restartGame(){
   }
 }
 
+void sendMessage(){
+  for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+  }
+  for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+    send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
+  }
+}
+
 int main (int argc, char *argv[])
 {
   int    len, rc, on = 1;
@@ -298,14 +307,15 @@ int main (int argc, char *argv[])
           //Check if msg is a vote
           if(msg.find("v") != string::npos){
               setVote(fds[i].fd, buffer);
-          }
-          else if(msg.find("m") != string::npos){
+          } else if(msg.find("m") != string::npos) {
               printf("Player %d sent message: %s\n",fds[i].fd, buffer);
-          } else if(msg.find("r") != string::npos){
-              printf("Restarting game!");
+              sendMessage();
+          } else if(msg.find("r") != string::npos) { 
+              printf("Restarting game!\n");
               restartGame();
-          }
-          else {
+          } else if(msg.find("e") != string::npos) {
+              printf("Player %d didn't vote!\n");
+          } else {
               printf("Player %d sent unrecognized string: %s\n",fds[i].fd, buffer);
           }
 
