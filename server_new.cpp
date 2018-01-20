@@ -301,7 +301,7 @@ int main (int argc, char *argv[])
 
           len = rc;
           printf("  %d bytes received: %s\n", len, buffer);
-
+          msg.clear();
           //Consume message
           msg = buffer;
           //Check if msg is a vote
