@@ -138,7 +138,7 @@ void restartGame(){
   }
 }
 
-void sendMessage(){
+void sendMessage(string msg){
   for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
     send(it->first, msg.c_str(), sizeof(msg.c_str()), 0);
   }
@@ -280,6 +280,7 @@ int main (int argc, char *argv[])
       {
         printf("  Descriptor %d is readable\n", fds[i].fd);
         // close_conn = FALSE;
+          strcpy(buffer, "           ");
           rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
           if (rc < 0)
           {
