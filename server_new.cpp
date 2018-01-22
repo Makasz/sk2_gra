@@ -48,23 +48,23 @@ void playerDisconnected(int &sd){
 void sendVote(int team){
   char buff[12];
     // if(team){ //Send vote to Red Team
-    //     for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+    //     for(auto it = red_sd.begin(); it != red_sd.end(); it++){
     //       sprintf(buff, "v%sO", table.c_str());
     //       send(it->first, table.c_str(), 11, 0);
     //     }
     // } else { //Send vote to Blue Team
-    //     for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+    //     for(auto it = blue_sd.begin(); it != blue_sd.end(); it++){
     //       sprintf(buff, "v%sX", table.c_str());
     //       send(it->first, table.c_str(), 11, 0);
     //     }
     // }
     //Send vote to Red Team
-        for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+        for(auto it = red_sd.begin(); it != red_sd.end(); it++){
           sprintf(buff, "v%sO", table.c_str());
           send(it->first, table.c_str(), 11, 0);
         }
     //Send vote to Blue Team
-        for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+        for(auto it = blue_sd.begin(); it != blue_sd.end(); it++){
           sprintf(buff, "v%sX", table.c_str());
           send(it->first, table.c_str(), 11, 0);
         
@@ -74,8 +74,8 @@ void sendVote(int team){
 void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
   int max_cnt = 0, tmp_cnt = 0;
     if(team == 0){ 
-      for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
-        for(map<int, string>::iterator it2 = red_sd.begin(); it2 != red_sd.end(); it2++){
+      for(auto it = red_sd.begin(); it != red_sd.end(); it++){
+        for(auto it2 = red_sd.begin(); it2 != red_sd.end(); it2++){
           if(it->second.compare(it2->second) == 0) 
             tmp_cnt++;
           if(tmp_cnt > max_cnt){
@@ -87,8 +87,8 @@ void decideVote(int team){//Choose most common vote (0 - Red, 1 - Blue)
      // printf("Most common red vote (Player %d Cnt:%d): %s\n", max_cnt_id, max_cnt, it->second.c_str());
       sendVote(0); 
   } else { //Choose most common vote in Blue Team
-      for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
-        for(map<int, string>::iterator it2 = blue_sd.begin(); it2 != blue_sd.end(); it2++){
+      for(auto it = blue_sd.begin(); it != blue_sd.end(); it++){
+        for(auto it2 = blue_sd.begin(); it2 != blue_sd.end(); it2++){
           if(it->second.compare(it2->second) == 0) 
             tmp_cnt++;
           if(tmp_cnt > max_cnt){
@@ -128,21 +128,21 @@ void setVote(int sd, char buf[11]){
 void restartGame(){
   table = "nnnnnnnnn";
   char buff[12];
-  for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+  for(auto it = red_sd.begin(); it != red_sd.end(); it++){
     sprintf(buff, "r%sX", table.c_str());
     send(it->first, buff, 12, 0);
   }
-  for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+  for(auto it = blue_sd.begin(); it != blue_sd.end(); it++){
     sprintf(buff, "r%sO", table.c_str());
     send(it->first, buff, 12, 0);
   }
 }
 
 void sendMessage(string msg){
-  for(map<int, string>::iterator it = red_sd.begin(); it != red_sd.end(); it++){
+  for(auto it = red_sd.begin(); it != red_sd.end(); it++){
     send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
-  for(map<int, string>::iterator it = blue_sd.begin(); it != blue_sd.end(); it++){
+  for(auto it = blue_sd.begin(); it != blue_sd.end(); it++){
     send(it->first, msg.c_str(), sizeof(msg.c_str())+2, 0);
   }
   printf("Forwarded message: %s\n", msg.c_str());
@@ -307,7 +307,7 @@ int main (int argc, char *argv[])
           //Consume message
           msg = buffer;
           //Check if msg is a vote
-          if(msg.find("v") != string::npos){
+          if(msg.find("v") != string::npos){          //nie czytelniej case?
               setVote(fds[i].fd, buffer);
           } else if(msg.find("m") != string::npos) {
               printf("Player %d sent message: %s\n",fds[i].fd, msg.c_str());
@@ -317,7 +317,10 @@ int main (int argc, char *argv[])
               restartGame();
           } else if(msg.find("e") != string::npos) {
               printf("Player %d didn't vote!\n", fds[i].fd);
-          } else {
+          } else if(msg.find("s") != string::npos && (red_sd.size() + blue_sd.size()) > 1) {    //phil
+              sendMessage("s");
+          } 
+          else {
               printf("Player %d sent unrecognized string: %s\n",fds[i].fd, buffer);
           }
 

@@ -39,7 +39,7 @@
             this.muteSoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.send = new System.Windows.Forms.Button();
+            this.send_button = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.a2 = new System.Windows.Forms.Button();
             this.c1 = new System.Windows.Forms.Button();
@@ -57,6 +57,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.timerLabel = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.startButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -134,15 +135,16 @@
             this.listBox1.Size = new System.Drawing.Size(300, 95);
             this.listBox1.TabIndex = 14;
             // 
-            // send
+            // send_button
             // 
-            this.send.Location = new System.Drawing.Point(318, 507);
-            this.send.Name = "send";
-            this.send.Size = new System.Drawing.Size(58, 23);
-            this.send.TabIndex = 16;
-            this.send.Text = "Send";
-            this.send.UseVisualStyleBackColor = true;
-            this.send.Click += new System.EventHandler(this.Send_Click);
+            this.send_button.Location = new System.Drawing.Point(318, 507);
+            this.send_button.Name = "send_button";
+            this.send_button.Size = new System.Drawing.Size(58, 23);
+            this.send_button.TabIndex = 16;
+            this.send_button.Text = "Send";
+            this.send_button.UseVisualStyleBackColor = true;
+            this.send_button.Click += new System.EventHandler(this.Send_Click);
+            this.send_button.KeyDown += new System.Windows.Forms.KeyEventHandler(this.send_KeyDown);
             // 
             // groupBox1
             // 
@@ -155,6 +157,7 @@
             this.groupBox1.Controls.Add(this.b3);
             this.groupBox1.Controls.Add(this.a3);
             this.groupBox1.Controls.Add(this.b2);
+            this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(12, 59);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(397, 341);
@@ -264,7 +267,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(342, 417);
+            this.label1.Location = new System.Drawing.Point(339, 406);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
             this.label1.TabIndex = 19;
@@ -274,7 +277,7 @@
             // 
             this.teamLabel.AutoSize = true;
             this.teamLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.teamLabel.Location = new System.Drawing.Point(340, 430);
+            this.teamLabel.Location = new System.Drawing.Point(340, 419);
             this.teamLabel.Name = "teamLabel";
             this.teamLabel.Size = new System.Drawing.Size(57, 55);
             this.teamLabel.TabIndex = 20;
@@ -314,11 +317,22 @@
             this.comboBox1.Size = new System.Drawing.Size(300, 21);
             this.comboBox1.TabIndex = 23;
             // 
+            // startButton
+            // 
+            this.startButton.Location = new System.Drawing.Point(318, 477);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(91, 23);
+            this.startButton.TabIndex = 24;
+            this.startButton.Text = "START";
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+            // 
             // TicTacToe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(423, 536);
+            this.Controls.Add(this.startButton);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.timerLabel);
             this.Controls.Add(this.label2);
@@ -326,7 +340,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.clearButton);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.send);
+            this.Controls.Add(this.send_button);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -351,7 +365,7 @@
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.Button send;
+        private System.Windows.Forms.Button send_button;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button a2;
         private System.Windows.Forms.Button c1;
@@ -371,6 +385,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label timerLabel;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Button startButton;
     }
 }
 

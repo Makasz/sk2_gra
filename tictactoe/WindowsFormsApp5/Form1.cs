@@ -66,7 +66,7 @@ namespace TicTacToe_SK2
 
         private void OnProcessExit(object sender, EventArgs e)
         {
-            //todo send exit msg to the server
+            //todo send_button exit msg to the server
             SetText("Exiting program...");
             //SendData(_soc, "L");
             _soc.Close();
@@ -122,7 +122,7 @@ namespace TicTacToe_SK2
 
         private void ReceiveData(Socket soc)
         {
-            byte[] recBuffer = new byte[20];
+            var recBuffer = new byte[20];
             while (true)
             {
                 try
@@ -181,7 +181,7 @@ namespace TicTacToe_SK2
                         {
                             SetText("error while choosing a team");
                             break;
-                        }                            
+                        }
                         SetText($"Joined team: {_player}");
                         teamLabel.Invoke((Action)delegate { teamLabel.Text = _player.ToString(); });
                         break;
@@ -196,12 +196,23 @@ namespace TicTacToe_SK2
                         StartNewGame();
                         break;
                     }
+                case 's':
+                    {
+                        groupBox1.Enabled = true;
+                        break;
+                    }
+                default:
+                    {
+                        SetText("recognise_msg() error");
+                        break;
+                    }
+                    
             }
         }
-        
+
         private int SendData(Socket soc, string input)
         {
-            int s = 0;
+            var s = 0;
             try
             {
                 s = soc.Send(Encoding.ASCII.GetBytes(input));
@@ -230,14 +241,14 @@ namespace TicTacToe_SK2
 
         private void SendTimeoutVote()
         {
-            foreach (Button b in _buttonList)
+            foreach (var b in _buttonList)
             {
                 if (String.IsNullOrEmpty(b.Text))
                 {
                     b.Text = _player.ToString();
                     MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);
                     b.ForeColor = Color.Red;
-                    string s = "v" + new string(_boardLocal) + _player;
+                    var s = "v" + new string(_boardLocal) + _player;
                     SendData(_soc, s);
                     return;
                 }                    
@@ -266,12 +277,12 @@ namespace TicTacToe_SK2
         
         private void OnButtonClick(object sender, EventArgs e)
         {
-            Button b = (Button)sender;
+            var b = (Button)sender;
 
             if ( (_xStarts && _player != 'X') || 
                 (!String.IsNullOrEmpty(b.Text) || _waitingForVote || _timeLeft == 0))
                 {
-                    send.Select();
+                    send_button.Select();
                     return;
                 }
             
@@ -281,13 +292,16 @@ namespace TicTacToe_SK2
             MapMovement(b.Name[0], b.Name[1] - '0', _boardLocal, _player);  
             b.ForeColor = Color.Red;                // do dopracowania 
 
-            string s = "v" + new string(_boardLocal) + _player;
+            var s = "v" + new string(_boardLocal) + _player;
             SendData(_soc, s);
             _r = 0;
 
-            timerLabel.Invoke((Action)delegate { timerLabel.Text = "opponents turn"; });
-            timerLabel.Invoke((Action)delegate { timer1.Stop(); });
-            send.Select();    
+            timerLabel.Invoke((Action) delegate
+            {
+                timerLabel.Text = @"opponents turn";
+                timer1.Stop();
+            });
+            send_button.Select();    
 
         }
         private bool ButtonComparison(Button b1, Button b2, Button b3)
@@ -297,7 +311,7 @@ namespace TicTacToe_SK2
 
         private void CheckWinner()
         {
-            bool fullBoard = true;
+            var fullBoard = true;
             //horizontal
             if (ButtonComparison(a1, a2, a3) || ButtonComparison(b1, b2, b3) || ButtonComparison(c1, c2, c3))
                 _someoneWon = true;
@@ -310,7 +324,7 @@ namespace TicTacToe_SK2
 
             if (_someoneWon) TeamWon();
 
-            foreach (Button b in _buttonList)
+            foreach (var b in _buttonList)
                 if (b.Text.Length == 0)
                     fullBoard = false;
 
@@ -324,7 +338,7 @@ namespace TicTacToe_SK2
         private void TeamWon()                          
         {
             groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
-            SetText($"Game over.");
+            SetText("Game over.");
         }
 
         private void quitToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -340,13 +354,13 @@ namespace TicTacToe_SK2
 
         private void StartNewGame()
         {
-            foreach (Button b in _buttonList)
+            foreach (var b in _buttonList)
                 b.Invoke((Action) delegate
                 {
                     b.Text = "";
                     b.ForeColor = Color.Black;
                 });
-            for (int i = 0; i < _boardLocal.Length; i++)
+            for (var i = 0; i < _boardLocal.Length; i++)
             {
                 _boardLocal[i] = 'n';
                 _boardRemote[i] = 'n';
@@ -373,12 +387,12 @@ namespace TicTacToe_SK2
         private void Send_Click(object sender, EventArgs e)
         {
             SendData(_soc, $"m{comboBox1.Text}");
-            send.Select();
+            send_button.Select();
         }
 
-        private void Send_KeyPress(object sender, KeyPressEventArgs e)
+        private void send_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyChar != (char) 13) return;
+            if (e.KeyCode != Keys.Enter) return;
             Send_Click(sender, e);
             e.Handled = true;       //żeby nie pikało
         }
@@ -449,5 +463,9 @@ namespace TicTacToe_SK2
             }
         }
 
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            SendData(_soc, "s");
+        }
     }
 }
