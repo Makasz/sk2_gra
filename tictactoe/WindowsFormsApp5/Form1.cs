@@ -314,7 +314,7 @@ namespace TicTacToe_SK2
                 if (b.Text.Length == 0)
                     fullBoard = false;
 
-            if (fullBoard || !_someoneWon)
+            if (fullBoard && !_someoneWon)
             {
                 groupBox1.Invoke((Action)delegate { groupBox1.Enabled = false; });
                 SetText("Draw!");
@@ -341,7 +341,11 @@ namespace TicTacToe_SK2
         private void StartNewGame()
         {
             foreach (Button b in _buttonList)
-                b.Invoke((Action)delegate { b.Text = ""; });
+                b.Invoke((Action) delegate
+                {
+                    b.Text = "";
+                    b.ForeColor = Color.Black;
+                });
             for (int i = 0; i < _boardLocal.Length; i++)
             {
                 _boardLocal[i] = 'n';
